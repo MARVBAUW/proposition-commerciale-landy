@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@media print {
+  .avoid-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+.pdf-export-mode {
+  font-size: 0.95em;
+  padding: 0 !important;
+  margin: 0 !important;
+}

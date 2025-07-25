@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev:*)",
+      "Bash(rm:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(netlify deploy:*)",
+      "Bash(netlify init:*)",
+      "Bash(netlify sites:create:*)",
+      "Bash(netlify:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": []
+  }
+}
