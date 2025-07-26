@@ -540,7 +540,7 @@ const PdfDocument: React.FC<PdfDocumentProps> = ({ solution = 'coliving' }) => {
           <Text style={{ fontSize: 10, flex: 2 }}>Plus-value brute :</Text>
           <Text style={{ fontSize: 10, flex: 1, textAlign: 'right', fontWeight: 'bold', color: '#c1a16a' }}>{potentiel.plusValue}</Text>
         </View>
-        <Text style={{ fontSize: 9, color: '#787346', marginTop: 2 }}>(Hors coût terrain et frais annexes)</Text>
+        <Text style={{ fontSize: 9, color: '#787346', marginTop: 2 }}>(Hors frais annexes)</Text>
       </View>
       {/* Prestations incluses */}
       <View style={styles.section} wrap={false}>

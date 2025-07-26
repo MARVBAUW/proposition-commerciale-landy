@@ -43,11 +43,8 @@ const TotalSummary: React.FC<TotalSummaryProps> = ({ solution = 'coliving' }) =>
     return () => window.removeEventListener('resize', checkIsMobile);
   }, []);
 
-  // Calculer le coût total dynamique selon la solution
+  // Calculer le coût total dynamique selon la solution avec TVA différentielle
   const getTotalCost = () => {
-    // Coûts fixes pour toutes les solutions
-    const coutsFixes = 21738 + 23633 + 12766 + 16560 + 23324 + 12420 + 19666 + 15112 + 12006; // 157225€
-
     if (solution === 'logements') {
       // Coûts variables pour solution 3 logements
       const electriciteHt = 30534;
@@ -56,10 +53,28 @@ const TotalSummary: React.FC<TotalSummaryProps> = ({ solution = 'coliving' }) =>
       const menuiseriesIntHt = 15600;
       const cuisineHt = 16500;
       const sanitairesHt = 14290;
-      const totalHt = coutsFixes + electriciteHt + plomberieHt + pacHt + menuiseriesIntHt + cuisineHt + sanitairesHt;
-      const honoraires = 7095;
+      
+      // TVA 5.5% : Amélioration énergétique
+      const amelioration55Ht = 16560 + 12420 + pacHt; // Isolation + Chauffage + PAC
+      
+      // TVA 10% : Rénovation
+      const renovation10Ht = 21738 + 23633 + 12766 + 23324 + 19666 + 15112 + 12006 + electriciteHt + plomberieHt;
+      
+      // TVA 20% : Équipements
+      const variables20Ht = menuiseriesIntHt + cuisineHt + sanitairesHt;
+      
+      const totalTravauxHt = amelioration55Ht + renovation10Ht + variables20Ht;
+      const tva55 = Math.round(amelioration55Ht * 0.055);
+      const tva10 = Math.round(renovation10Ht * 0.10);
+      const tva20 = Math.round(variables20Ht * 0.2);
+      const tvaTravauxHt = tva55 + tva10 + tva20;
+      const totalTravauxTtc = totalTravauxHt + tvaTravauxHt;
+      
+      const honorairesHt = 7095;
+      const honorairesTtc = Math.round(honorairesHt * 1.2);
       const prime = -2500;
-      return Math.round((totalHt + honoraires + prime) * 1.2); // Avec TVA et honoraires
+      
+      return totalTravauxTtc + honorairesTtc + prime;
     } else {
       // Coûts variables pour solution coliving
       const electriciteHt = 25876;
@@ -68,10 +83,28 @@ const TotalSummary: React.FC<TotalSummaryProps> = ({ solution = 'coliving' }) =>
       const menuiseriesIntHt = 10350;
       const cuisineHt = 11730;
       const sanitairesHt = 11040;
-      const totalHt = coutsFixes + electriciteHt + plomberieHt + pacHt + menuiseriesIntHt + cuisineHt + sanitairesHt;
-      const honoraires = 7095;
+      
+      // TVA 5.5% : Amélioration énergétique
+      const amelioration55Ht = 16560 + 12420 + pacHt; // Isolation + Chauffage + PAC
+      
+      // TVA 10% : Rénovation
+      const renovation10Ht = 21738 + 23633 + 12766 + 23324 + 19666 + 15112 + 12006 + electriciteHt + plomberieHt;
+      
+      // TVA 20% : Équipements
+      const variables20Ht = menuiseriesIntHt + cuisineHt + sanitairesHt;
+      
+      const totalTravauxHt = amelioration55Ht + renovation10Ht + variables20Ht;
+      const tva55 = Math.round(amelioration55Ht * 0.055);
+      const tva10 = Math.round(renovation10Ht * 0.10);
+      const tva20 = Math.round(variables20Ht * 0.2);
+      const tvaTravauxHt = tva55 + tva10 + tva20;
+      const totalTravauxTtc = totalTravauxHt + tvaTravauxHt;
+      
+      const honorairesHt = 7095;
+      const honorairesTtc = Math.round(honorairesHt * 1.2);
       const prime = -2500;
-      return Math.round((totalHt + honoraires + prime) * 1.2); // Avec TVA et honoraires
+      
+      return totalTravauxTtc + honorairesTtc + prime;
     }
   };
 
@@ -524,7 +557,7 @@ const TotalSummary: React.FC<TotalSummaryProps> = ({ solution = 'coliving' }) =>
                     <span className="font-bold text-2xl" style={{ color: '#787346' }}>{potentialData.plusValue.toLocaleString('fr-FR')} €</span>
                   </div>
                   <div className="text-sm text-gray-500 mt-2">
-                    (Hors coût terrain et frais annexes)
+                    (Hors frais annexes)
                   </div>
                 </div>
               </div>
