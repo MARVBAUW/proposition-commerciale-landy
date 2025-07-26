@@ -39,9 +39,10 @@ interface PricingSectionProps {
     tva: string;
     ttcAmount: string;
   };
+  tvaRate?: '5.5%' | '20%';
 }
 
-const PricingSection: React.FC<PricingSectionProps> = ({ title, icon, rows, subtotal }) => {
+const PricingSection: React.FC<PricingSectionProps> = ({ title, icon, rows, subtotal, tvaRate = '5.5%' }) => {
   return (
     <div className="bg-white rounded-lg p-3 sm:p-6 border border-gray-200 shadow-sm mb-4 sm:mb-6">
       <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 flex items-center" style={{ color: '#787346' }}>
@@ -54,7 +55,7 @@ const PricingSection: React.FC<PricingSectionProps> = ({ title, icon, rows, subt
             <tr className="border-b border-gray-300">
               <th className="text-left px-2 sm:px-4 py-2 sm:py-3 text-gray-600 text-xs sm:text-sm">Poste</th>
               <th className="text-right px-1 sm:px-4 py-2 sm:py-3 text-gray-600 text-xs sm:text-sm whitespace-nowrap">Montant HT</th>
-              <th className="text-right px-1 sm:px-4 py-2 sm:py-3 text-gray-600 text-xs sm:text-sm whitespace-nowrap">TVA 20%</th>
+              <th className="text-right px-1 sm:px-4 py-2 sm:py-3 text-gray-600 text-xs sm:text-sm whitespace-nowrap">TVA {tvaRate}</th>
               <th className="text-right px-1 sm:px-4 py-2 sm:py-3 text-gray-600 text-xs sm:text-sm whitespace-nowrap">Montant TTC</th>
             </tr>
           </thead>

@@ -3,23 +3,21 @@ import { AlertTriangle, XCircle, Shield } from 'lucide-react';
 
 const Exclusions: React.FC = () => {
   const studies = [
-    { name: "Étude de sol G1 et G2", cost: "2 500 à 4 000 €", provider: "Bureau d'études géotechniques agréé (terrain argileux)" },
-    { name: "Étude thermique RE2020", cost: "800 à 1 500 €", provider: "Bureau d'études thermiques certifié" },
-    { name: "Test de perméabilité", cost: "300 à 500 €", provider: "Organisme agréé" },
+    { name: "Diagnostic structurel", cost: "1 500 à 2 500 €", provider: "Bureau d'études structure agréé" },
+    { name: "Diagnostic amiante/plomb", cost: "500 à 800 €", provider: "Diagnostiqueur certifié" },
     { name: "Contrôle Consuel", cost: "150 à 200 €", provider: "Consuel (sécurité électrique)" },
   ];
 
   const insurances = [
-    { name: "Assurance Dommage-Ouvrage", cost: "3 500 à 5 000 €", period: "À souscrire avant ouverture du chantier" },
+    { name: "Assurance Dommage-Ouvrage", cost: "2 500 à 4 000 €", period: "À souscrire avant ouverture du chantier" },
+    { name: "DROC (Déclaration d'ouverture de chantier)", cost: "Gratuit", period: "À déposer en mairie avant démarrage" },
   ];
 
   const exclusions = [
-    "Aménagement paysager complet (seul aménagement de base inclus)",
-    "Clôtures additionnelles (portail standard inclus)",
-    "Raccordements aux réseaux (si éloignés)",
-    "Taxes d'aménagement et archéologique",
-    "Taxe foncière",
-    "Études géotechniques complémentaires si sol complexe"
+    "Autorisation de copropriété (menuiseries et groupe climatisation)",
+    "Occupation du domaine public pour travaux",
+    "Études complémentaires si découvertes imprévues",
+    "Prestations non mentionnées au présent devis"
   ];
 
   return (

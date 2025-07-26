@@ -1,19 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Calendar, Download } from 'lucide-react';
+import { MapPin, Calendar, Download, HelpCircle, GitCompare, Users, Building } from 'lucide-react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import PdfDocument from './PdfDocument';
+import PdfDocumentDual from './PdfDocumentDual';
 
 interface HeaderProps {
   isDesktopMode?: boolean;
+  solution?: 'coliving' | 'logements';
+  onShowTutorial?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ isDesktopMode = false }) => {
+const Header: React.FC<HeaderProps> = ({ isDesktopMode = false, solution = 'coliving', onShowTutorial }) => {
   const [scrollY, setScrollY] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
   }, []);
 
   // Calculer l'opacité et le flou basés sur le scroll
@@ -68,22 +82,22 @@ const Header: React.FC<HeaderProps> = ({ isDesktopMode = false }) => {
               isDesktopMode 
                 ? 'text-2xl' 
                 : 'text-base sm:text-2xl'
-            }`} style={{ color: '#c1a16a' }}>PROPOSITION COMMERCIALE</div>
+            }`} style={{ color: '#c1a16a' }}>AVANT-PROJET</div>
             <a href="https://progineer.fr/prestations/construction-neuve" target="_blank" rel="noopener noreferrer">
               <div className={`text-gray-600 hover:text-gray-800 transition-colors ${
                 isDesktopMode 
                   ? 'text-base' 
                   : 'text-xs sm:text-base'
-              }`}>Construction neuve individuelle</div>
+              }`}>Avant-Projet Détaillé</div>
             </a>
           </div>
           
         </div>
         
-        <div className={`grid grid-cols-1 md:grid-cols-4 bg-white rounded-lg border border-gray-200 shadow-sm ${
+        <div className={`flex flex-col lg:grid lg:grid-cols-5 bg-white rounded-lg border border-gray-200 shadow-sm ${
           isDesktopMode 
-            ? 'gap-6 p-6' 
-            : 'gap-3 sm:gap-6 p-3 sm:p-6'
+            ? 'gap-2 p-4' 
+            : 'gap-3 sm:gap-2 p-3 sm:p-4'
         }`}>
           <div className={`flex items-center ${
             isDesktopMode 
@@ -105,7 +119,7 @@ const Header: React.FC<HeaderProps> = ({ isDesktopMode = false }) => {
                 isDesktopMode 
                   ? 'text-base' 
                   : 'text-sm sm:text-base'
-              }`}>M. et Mme LANDY</div>
+              }`}>Pierre Lauzier</div>
             </div>
           </div>
           <div className={`flex items-center ${
@@ -128,7 +142,7 @@ const Header: React.FC<HeaderProps> = ({ isDesktopMode = false }) => {
                 isDesktopMode 
                   ? 'text-base' 
                   : 'text-sm sm:text-base'
-              }`}>Le Lavandou (83980)</div>
+              }`}>31C rue Curiol, Marseille 13001</div>
             </div>
           </div>
           <div className={`flex items-center ${
@@ -151,30 +165,62 @@ const Header: React.FC<HeaderProps> = ({ isDesktopMode = false }) => {
                 isDesktopMode 
                   ? 'text-base' 
                   : 'text-sm sm:text-base'
-              }`}>21 juillet 2025</div>
+              }`}>24 juillet 2025</div>
             </div>
           </div>
-          <div className="flex items-center justify-center">
+          <div className="flex flex-wrap items-center justify-start gap-1 text-xs lg:text-sm lg:col-span-2">
+            {/* Bouton d'aide */}
+            {onShowTutorial && (
+              <button
+                onClick={onShowTutorial}
+                className="flex items-center gap-1 px-2 py-1 text-[#787346] hover:bg-gray-100 rounded text-xs transition-colors"
+                title="Afficher le guide d'utilisation"
+              >
+                <HelpCircle className="w-3 h-3" />
+                <span className="hidden lg:inline">Aide</span>
+              </button>
+            )}
+            
+            {/* Bouton PDF comparatif - 2 solutions */}
             <PDFDownloadLink
-              document={<PdfDocument />}
-              fileName="Proposition_Commerciale_LANDY_Le_Lavandou.pdf"
-              style={{
-                backgroundColor: '#c1a16a',
-                color: 'white',
-                borderRadius: '0.5rem',
-                padding: '0.5rem 1rem',
-                fontWeight: 500,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                textDecoration: 'none',
-                transition: 'all 0.3s',
-              }}
+              document={<PdfDocumentDual />}
+              fileName="Comparatif_2_Solutions_Pierre_Lauzier.pdf"
+              className="flex items-center gap-1 px-2 py-1 bg-[#c1a16a] text-white rounded text-xs font-medium hover:bg-[#b8a994] transition-colors whitespace-nowrap"
             >
               {({ loading }) => (
                 <>
-                  <Download className="w-4 h-4" />
-                  <span className="text-sm">{loading ? 'Préparation...' : 'Télécharger PDF'}</span>
+                  <GitCompare className="w-3 h-3 flex-shrink-0" />
+                  <span className="hidden lg:inline">{loading ? 'Génération...' : 'Comparatif'}</span>
+                  <span className="lg:hidden">{loading ? '...' : 'Comp'}</span>
+                </>
+              )}
+            </PDFDownloadLink>
+
+            {/* Boutons PDF des deux solutions */}
+            <PDFDownloadLink
+              document={<PdfDocument solution="coliving" />}
+              fileName="Solution_Coliving_Pierre_Lauzier.pdf"
+              className="flex items-center gap-1 px-2 py-1 bg-[#787346] text-white rounded text-xs font-medium hover:bg-[#6b6b3d] transition-colors whitespace-nowrap"
+            >
+              {({ loading }) => (
+                <>
+                  <Users className="w-3 h-3 flex-shrink-0" />
+                  <span className="hidden lg:inline">{loading ? '...' : 'Coliving'}</span>
+                  <span className="lg:hidden">Co</span>
+                </>
+              )}
+            </PDFDownloadLink>
+            
+            <PDFDownloadLink
+              document={<PdfDocument solution="logements" />}
+              fileName="Solution_3_Logements_Pierre_Lauzier.pdf"
+              className="flex items-center gap-1 px-2 py-1 bg-[#059669] text-white rounded text-xs font-medium hover:bg-[#047857] transition-colors whitespace-nowrap"
+            >
+              {({ loading }) => (
+                <>
+                  <Building className="w-3 h-3 flex-shrink-0" />
+                  <span className="hidden lg:inline">{loading ? '...' : '3 Logts'}</span>
+                  <span className="lg:hidden">3L</span>
                 </>
               )}
             </PDFDownloadLink>
@@ -202,6 +248,62 @@ const Header: React.FC<HeaderProps> = ({ isDesktopMode = false }) => {
           alt="PROGINEER" 
           className="h-16 w-auto" 
         />
+      </div>
+      
+      {/* Boutons PDF fixes grisés - visible au scroll */}
+      <div 
+        className="fixed flex gap-1 transition-all duration-300 z-40"
+        style={{
+          top: isMobile ? '70px' : '16px', // Position plus basse sur mobile pour éviter le toggle
+          right: '16px',
+          opacity: scrollY > 100 ? 0.4 : 0,
+          pointerEvents: scrollY > 100 ? 'auto' : 'none'
+        }}
+      >
+        <PDFDownloadLink
+          document={<PdfDocumentDual />}
+          fileName="Comparatif_2_Solutions_Pierre_Lauzier.pdf"
+          className={`flex items-center gap-1 bg-gray-500 text-white rounded font-medium hover:bg-gray-600 transition-colors whitespace-nowrap ${
+            isMobile ? 'px-1 py-1 text-xs' : 'px-2 py-1 text-xs'
+          }`}
+        >
+          {({ loading }) => (
+            <>
+              <GitCompare className={isMobile ? "w-2 h-2 flex-shrink-0" : "w-3 h-3 flex-shrink-0"} />
+              <span className="hidden lg:inline">{loading ? '...' : 'Comp'}</span>
+            </>
+          )}
+        </PDFDownloadLink>
+        
+        <PDFDownloadLink
+          document={<PdfDocument solution="coliving" />}
+          fileName="Solution_Coliving_Pierre_Lauzier.pdf"
+          className={`flex items-center gap-1 bg-gray-500 text-white rounded font-medium hover:bg-gray-600 transition-colors whitespace-nowrap ${
+            isMobile ? 'px-1 py-1 text-xs' : 'px-2 py-1 text-xs'
+          }`}
+        >
+          {({ loading }) => (
+            <>
+              <Users className={isMobile ? "w-2 h-2 flex-shrink-0" : "w-3 h-3 flex-shrink-0"} />
+              <span className="hidden lg:inline">{loading ? '...' : 'Co'}</span>
+            </>
+          )}
+        </PDFDownloadLink>
+        
+        <PDFDownloadLink
+          document={<PdfDocument solution="logements" />}
+          fileName="Solution_3_Logements_Pierre_Lauzier.pdf"
+          className={`flex items-center gap-1 bg-gray-500 text-white rounded font-medium hover:bg-gray-600 transition-colors whitespace-nowrap ${
+            isMobile ? 'px-1 py-1 text-xs' : 'px-2 py-1 text-xs'
+          }`}
+        >
+          {({ loading }) => (
+            <>
+              <Building className={isMobile ? "w-2 h-2 flex-shrink-0" : "w-3 h-3 flex-shrink-0"} />
+              <span className="hidden lg:inline">{loading ? '...' : '3L'}</span>
+            </>
+          )}
+        </PDFDownloadLink>
       </div>
     </>
   );

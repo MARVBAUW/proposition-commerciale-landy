@@ -1,5 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
+
 import { TrendingUp, DollarSign, Home, Calendar, MapPin, Target } from 'lucide-react';
+
+interface TotalSummaryProps {
+  solution?: 'coliving' | 'logements';
+}
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -24,34 +29,218 @@ ChartJS.register(
   Filler
 );
 
-const TotalSummary: React.FC = () => {
+const TotalSummary: React.FC<TotalSummaryProps> = ({ solution = 'coliving' }) => {
   const [selectedPeriod, setSelectedPeriod] = useState('max');
+  const [isMobile, setIsMobile] = useState(false);
 
-  const evolutionData = [
-    { period: '1year', label: '1 AN', change: '+3%', isPositive: true },
-    { period: '5years', label: '5 ANS', change: '+23%', isPositive: true },
-    { period: '10years', label: '10 ANS', change: '+20%', isPositive: true },
-    { period: 'max', label: 'MAX', change: '+23%', isPositive: true }
-  ];
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
 
-  const priceData = {
-    max: {
-      labels: ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025'],
-      data: [1270000, 1285000, 1315000, 1345000, 1375000, 1400000, 1480000, 1540000, 1520000, 1550000, 1563820]
-    },
-    '10years': {
-      labels: ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025'],
-      data: [1270000, 1285000, 1315000, 1345000, 1375000, 1400000, 1480000, 1540000, 1520000, 1550000, 1563820]
-    },
-    '5years': {
-      labels: ['2020', '2021', '2022', '2023', '2024', '2025'],
-      data: [1270000, 1480000, 1540000, 1520000, 1550000, 1563820]
-    },
-    '1year': {
-      labels: ['Juil 2024', 'Sept 2024', 'Nov 2024', 'Jan 2025', 'Mar 2025', 'Mai 2025', 'Juil 2025'],
-      data: [1520000, 1535000, 1545000, 1550000, 1558000, 1560000, 1563820]
+  // Calculer le coût total dynamique selon la solution
+  const getTotalCost = () => {
+    // Coûts fixes pour toutes les solutions
+    const coutsFixes = 21738 + 23633 + 12766 + 16560 + 23324 + 12420 + 19666 + 15112 + 12006; // 157225€
+
+    if (solution === 'logements') {
+      // Coûts variables pour solution 3 logements
+      const electriciteHt = 30534;
+      const plomberieHt = 27945;
+      const pacHt = 20184;
+      const menuiseriesIntHt = 15600;
+      const cuisineHt = 16500;
+      const sanitairesHt = 14290;
+      const totalHt = coutsFixes + electriciteHt + plomberieHt + pacHt + menuiseriesIntHt + cuisineHt + sanitairesHt;
+      const honoraires = 7095;
+      const prime = -2500;
+      return Math.round((totalHt + honoraires + prime) * 1.2); // Avec TVA et honoraires
+    } else {
+      // Coûts variables pour solution coliving
+      const electriciteHt = 25876;
+      const plomberieHt = 20700;
+      const pacHt = 13456;
+      const menuiseriesIntHt = 10350;
+      const cuisineHt = 11730;
+      const sanitairesHt = 11040;
+      const totalHt = coutsFixes + electriciteHt + plomberieHt + pacHt + menuiseriesIntHt + cuisineHt + sanitairesHt;
+      const honoraires = 7095;
+      const prime = -2500;
+      return Math.round((totalHt + honoraires + prime) * 1.2); // Avec TVA et honoraires
     }
   };
+
+  // Calculer les données selon la solution
+  const getPotentialData = () => {
+    const coutTotal = getTotalCost();
+    
+    if (solution === 'logements') {
+      const valeurTotale = 471000;
+      return {
+        valeurTotale: valeurTotale, // 163+163+145k€
+        prixM2: 3140, // 471000/150
+        coutTotal: coutTotal,
+        plusValue: valeurTotale - coutTotal,
+        minPrice: Math.round(valeurTotale * 0.85), // -15%
+        maxPrice: Math.round(valeurTotale * 1.15), // +15%
+        loyer: 1884, // Total des 3 logements
+        loyerM2: 12.56
+      };
+    } else {
+      const valeurTotale = 515000;
+      return {
+        valeurTotale: valeurTotale, // Coliving
+        prixM2: 3433, // 515000/150
+        coutTotal: coutTotal,
+        plusValue: valeurTotale - coutTotal,
+        minPrice: Math.round(valeurTotale * 0.85), // -15%
+        maxPrice: Math.round(valeurTotale * 1.15), // +15%
+        loyer: 2420, // Coliving plus élevé
+        loyerM2: 16.13
+      };
+    }
+  };
+
+  const potentialData = getPotentialData();
+
+  // Calculer les totaux pour le récapitulatif avec TVA correcte
+  const getRecapData = () => {
+    if (solution === 'logements') {
+      // Coûts variables pour solution 3 logements  
+      const electriciteHt = 30534;
+      const plomberieHt = 27945;
+      const pacHt = 20184;
+      const menuiseriesIntHt = 15600;
+      const cuisineHt = 16500;
+      const sanitairesHt = 14290;
+      
+      // TVA 5.5% : Amélioration énergétique
+      const amelioration55Ht = 16560 + 12420 + pacHt; // Isolation + Chauffage + PAC
+      
+      // TVA 10% : Rénovation
+      const renovation10Ht = 21738 + 23633 + 12766 + 23324 + 19666 + 15112 + 12006 + electriciteHt + plomberieHt;
+      
+      // TVA 20% : Équipements
+      const variables20Ht = menuiseriesIntHt + cuisineHt + sanitairesHt;
+      
+      const totalTravauxHt = amelioration55Ht + renovation10Ht + variables20Ht;
+      const tva55 = Math.round(amelioration55Ht * 0.055);
+      const tva10 = Math.round(renovation10Ht * 0.10);
+      const tva20 = Math.round(variables20Ht * 0.2);
+      const tvaTravauxHt = tva55 + tva10 + tva20;
+      const totalTravauxTtc = totalTravauxHt + tvaTravauxHt;
+      
+      const honorairesHt = 7095;
+      const honorairesTva = Math.round(honorairesHt * 0.2);
+      const honorairesTtc = honorairesHt + honorairesTva;
+      
+      const prime = -2500;
+      
+      const totalGeneralHt = totalTravauxHt + honorairesHt + prime;
+      const totalGeneralTva = tvaTravauxHt + honorairesTva;
+      const totalGeneralTtc = totalTravauxTtc + honorairesTtc + prime;
+      
+      return {
+        travauxHt: totalTravauxHt,
+        travauxTva: tvaTravauxHt,
+        travauxTtc: totalTravauxTtc,
+        honorairesHt: honorairesHt,
+        honorairesTva: honorairesTva,
+        honorairesTtc: honorairesTtc,
+        prime: prime,
+        totalHt: totalGeneralHt,
+        totalTva: totalGeneralTva,
+        totalTtc: totalGeneralTtc
+      };
+    } else {
+      // Coûts variables pour solution coliving
+      const electriciteHt = 25876;
+      const plomberieHt = 20700;
+      const pacHt = 13456;
+      const menuiseriesIntHt = 10350;
+      const cuisineHt = 11730;
+      const sanitairesHt = 11040;
+      
+      // TVA 5.5% : Amélioration énergétique
+      const amelioration55Ht = 16560 + 12420 + pacHt; // Isolation + Chauffage + PAC
+      
+      // TVA 10% : Rénovation
+      const renovation10Ht = 21738 + 23633 + 12766 + 23324 + 19666 + 15112 + 12006 + electriciteHt + plomberieHt;
+      
+      // TVA 20% : Équipements
+      const variables20Ht = menuiseriesIntHt + cuisineHt + sanitairesHt;
+      
+      const totalTravauxHt = amelioration55Ht + renovation10Ht + variables20Ht;
+      const tva55 = Math.round(amelioration55Ht * 0.055);
+      const tva10 = Math.round(renovation10Ht * 0.10);
+      const tva20 = Math.round(variables20Ht * 0.2);
+      const tvaTravauxHt = tva55 + tva10 + tva20;
+      const totalTravauxTtc = totalTravauxHt + tvaTravauxHt;
+      
+      const honorairesHt = 7095;
+      const honorairesTva = Math.round(honorairesHt * 0.2);
+      const honorairesTtc = honorairesHt + honorairesTva;
+      
+      const prime = -2500;
+      
+      const totalGeneralHt = totalTravauxHt + honorairesHt + prime;
+      const totalGeneralTva = tvaTravauxHt + honorairesTva;
+      const totalGeneralTtc = totalTravauxTtc + honorairesTtc + prime;
+      
+      return {
+        travauxHt: totalTravauxHt,
+        travauxTva: tvaTravauxHt,
+        travauxTtc: totalTravauxTtc,
+        honorairesHt: honorairesHt,
+        honorairesTva: honorairesTva,
+        honorairesTtc: honorairesTtc,
+        prime: prime,
+        totalHt: totalGeneralHt,
+        totalTva: totalGeneralTva,
+        totalTtc: totalGeneralTtc
+      };
+    }
+  };
+
+  const recapData = getRecapData();
+
+  const evolutionData = [
+    { period: '1year', label: '1 AN', change: '+0%', isPositive: false },
+    { period: '5years', label: '5 ANS', change: '+16%', isPositive: true },
+    { period: '10years', label: '10 ANS', change: '+34%', isPositive: true },
+    { period: 'max', label: 'MAX', change: '+283%', isPositive: true }
+  ];
+
+  const getPriceData = () => {
+    const currentValue = potentialData.valeurTotale;
+    const ratio = currentValue / 484300; // Ratio par rapport à l'ancienne valeur
+    
+    return {
+      max: {
+        labels: ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025'],
+        data: [126430, 145600, 189500, 210000, 265400, 298000, 345600, 398700, 425100, 465200, currentValue].map(val => val === currentValue ? val : Math.round(val * ratio))
+      },
+      '10years': {
+        labels: ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025'],
+        data: [126430, 145600, 189500, 210000, 265400, 298000, 345600, 398700, 425100, 465200, currentValue].map(val => val === currentValue ? val : Math.round(val * ratio))
+      },
+      '5years': {
+        labels: ['2020', '2021', '2022', '2023', '2024', '2025'],
+        data: [298000, 345600, 398700, 425100, 465200, currentValue].map(val => val === currentValue ? val : Math.round(val * ratio))
+      },
+      '1year': {
+        labels: ['Juil 2024', 'Sept 2024', 'Nov 2024', 'Jan 2025', 'Mar 2025', 'Mai 2025', 'Juil 2025'],
+        data: [465200, 467100, 470200, 475800, 479500, 481900, currentValue].map(val => val === currentValue ? val : Math.round(val * ratio))
+      }
+    };
+  };
+
+  const priceData = getPriceData();
 
   const chartOptions = {
     responsive: true,
@@ -148,10 +337,10 @@ const TotalSummary: React.FC = () => {
   };
 
   const propertyDetails = [
-    { label: 'Surface', value: '145 m²', icon: Home },
-    { label: 'Configuration', value: 'Maison à étage', icon: Target },
-    { label: 'Commune', value: 'Le Lavandou', icon: MapPin },
-    { label: 'Estimation', value: '21 juillet 2025', icon: Calendar }
+    { label: 'Surface', value: '150 m²', icon: Home },
+    { label: 'Configuration', value: 'Bâtiment 3 niveaux', icon: Target },
+    { label: 'Commune', value: 'Marseille 13001', icon: MapPin },
+    { label: 'Estimation', value: '24 juillet 2025', icon: Calendar }
   ];
 
   return (
@@ -161,34 +350,40 @@ const TotalSummary: React.FC = () => {
         
         {/* Récapitulatif général */}
         <div className="bg-gradient-to-r from-white to-gray-50 rounded-lg p-3 sm:p-6 mb-4 sm:mb-8 border-2 shadow-lg" style={{ borderColor: '#c1a16a' }}>
-          <div className="overflow-x-auto">
+          <div className={`overflow-x-auto ${isMobile ? 'scroll-hint' : ''}`}>
             <table className="w-full min-w-[600px]">
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(193, 161, 106, 0.5)' }}>
                   <th className="text-left px-2 sm:px-4 py-2 sm:py-3 text-yellow-400 text-xs sm:text-sm"></th>
                   <th className="text-right px-1 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm whitespace-nowrap" style={{ color: '#c1a16a' }}>MONTANT HT</th>
-                  <th className="text-right px-1 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm whitespace-nowrap" style={{ color: '#c1a16a' }}>TVA 20%</th>
+                  <th className="text-right px-1 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm whitespace-nowrap" style={{ color: '#c1a16a' }}>TVA</th>
                   <th className="text-right px-1 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm whitespace-nowrap" style={{ color: '#c1a16a' }}>MONTANT TTC</th>
                 </tr>
               </thead>
               <tbody>
                 <tr className="bg-gray-100/50">
-                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-gray-900 font-semibold text-xs sm:text-sm">COÛT DES TRAVAUX</td>
-                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right text-gray-900 font-mono text-xs sm:text-sm whitespace-nowrap">332 725,52 €</td>
-                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right text-gray-600 font-mono text-xs sm:text-sm whitespace-nowrap">66 545,11 €</td>
-                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right font-mono font-bold text-xs sm:text-sm whitespace-nowrap" style={{ color: '#c1a16a' }}>399 270,63 €</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-gray-900 font-semibold text-xs sm:text-sm">COÛT DES TRAVAUX RÉNOVATION</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right text-gray-900 font-mono text-xs sm:text-sm whitespace-nowrap">{recapData.travauxHt.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right text-gray-600 font-mono text-xs sm:text-sm whitespace-nowrap">{recapData.travauxTva.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right font-mono font-bold text-xs sm:text-sm whitespace-nowrap" style={{ color: '#c1a16a' }}>{recapData.travauxTtc.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
                 </tr>
                 <tr className="bg-gray-50">
                   <td className="px-2 sm:px-4 py-2 sm:py-3 text-gray-900 font-semibold text-xs sm:text-sm">HONORAIRES MAÎTRISE D'ŒUVRE</td>
-                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right text-gray-900 font-mono text-xs sm:text-sm whitespace-nowrap">27 283,49 €</td>
-                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right text-gray-600 font-mono text-xs sm:text-sm whitespace-nowrap">5 456,70 €</td>
-                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right font-mono font-bold text-xs sm:text-sm whitespace-nowrap" style={{ color: '#c1a16a' }}>32 740,19 €</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right text-gray-900 font-mono text-xs sm:text-sm whitespace-nowrap">{recapData.honorairesHt.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right text-gray-600 font-mono text-xs sm:text-sm whitespace-nowrap">{recapData.honorairesTva.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right font-mono font-bold text-xs sm:text-sm whitespace-nowrap" style={{ color: '#c1a16a' }}>{recapData.honorairesTtc.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                </tr>
+                <tr className="bg-green-50">
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-gray-900 font-semibold text-xs sm:text-sm">POTENTIEL PRIME CEE</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right text-gray-900 font-mono text-xs sm:text-sm whitespace-nowrap">{recapData.prime.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right text-gray-600 font-mono text-xs sm:text-sm whitespace-nowrap">0,00 €</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right font-mono font-bold text-xs sm:text-sm whitespace-nowrap text-green-600">{recapData.prime.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
                 </tr>
                 <tr className="border-t-2" style={{ background: 'linear-gradient(to right, rgba(193, 161, 106, 0.2), rgba(193, 161, 106, 0.1))', borderTopColor: '#c1a16a' }}>
                   <td className="px-2 sm:px-4 py-2 sm:py-4 font-bold text-sm sm:text-lg" style={{ color: '#c1a16a' }}>TOTAL GÉNÉRAL</td>
-                  <td className="px-1 sm:px-4 py-2 sm:py-4 text-right font-mono font-bold text-sm sm:text-lg whitespace-nowrap" style={{ color: '#c1a16a' }}>360 009,01 €</td>
-                  <td className="px-1 sm:px-4 py-2 sm:py-4 text-right font-mono font-bold text-xs sm:text-sm whitespace-nowrap" style={{ color: '#c1a16a' }}>72 001,81 €</td>
-                  <td className="px-1 sm:px-4 py-2 sm:py-4 text-right font-mono font-bold text-sm sm:text-xl whitespace-nowrap" style={{ color: '#c1a16a' }}>432 010,82 €</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-4 text-right font-mono font-bold text-sm sm:text-lg whitespace-nowrap" style={{ color: '#c1a16a' }}>{recapData.totalHt.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-4 text-right font-mono font-bold text-xs sm:text-sm whitespace-nowrap" style={{ color: '#c1a16a' }}>{recapData.totalTva.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-4 text-right font-mono font-bold text-sm sm:text-xl whitespace-nowrap" style={{ color: '#c1a16a' }}>{recapData.totalTtc.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
                 </tr>
               </tbody>
             </table>
@@ -207,14 +402,14 @@ const TotalSummary: React.FC = () => {
                 <DollarSign className="w-6 h-6 mr-3" style={{ color: '#c1a16a' }} />
                 <h3 className="text-lg font-semibold" style={{ color: '#c1a16a' }}>Prix net vendeur</h3>
               </div>
-              <div className="text-2xl font-bold text-gray-900 mb-2">1 563 820 €</div>
-              <div className="text-sm text-gray-600 mb-3">soit 10 784 €/m²</div>
+              <div className="text-2xl font-bold text-gray-900 mb-2">{potentialData.valeurTotale.toLocaleString('fr-FR')} €</div>
+              <div className="text-sm text-gray-600 mb-3">soit {potentialData.prixM2.toLocaleString('fr-FR')} €/m²</div>
               <div className="flex justify-between text-xs text-gray-500 pt-3 border-t border-gray-200">
-                <span>Min: 1 479 062 €</span>
-                <span>Max: 1 944 692 €</span>
+                <span>Min: {potentialData.minPrice.toLocaleString('fr-FR')} €</span>
+                <span>Max: {potentialData.maxPrice.toLocaleString('fr-FR')} €</span>
               </div>
               <div className="mt-3 inline-block px-2 py-1 rounded-full text-xs" style={{ backgroundColor: 'rgba(193, 161, 106, 0.2)', color: '#c1a16a' }}>
-                Fiabilité très élevée (5/5)
+                Fiabilité élevée (4/5)
               </div>
             </div>
 
@@ -224,11 +419,11 @@ const TotalSummary: React.FC = () => {
                 <Home className="w-6 h-6 mr-3" style={{ color: '#787346' }} />
                 <h3 className="text-lg font-semibold" style={{ color: '#787346' }}>Loyer hors charges</h3>
               </div>
-              <div className="text-2xl font-bold text-gray-900 mb-2">2 460 €/mois</div>
-              <div className="text-sm text-gray-600 mb-3">soit 20 €/m²</div>
+              <div className="text-2xl font-bold text-gray-900 mb-2">{potentialData.loyer.toLocaleString('fr-FR')} €/mois</div>
+              <div className="text-sm text-gray-600 mb-3">soit {potentialData.loyerM2.toLocaleString('fr-FR', { maximumFractionDigits: 1 })} €/m²</div>
               <div className="flex justify-between text-xs text-gray-500 pt-3 border-t border-gray-200">
-                <span>Min: 2 214 €</span>
-                <span>Max: 2 706 €</span>
+                <span>Min: {Math.round(potentialData.loyer * 0.9).toLocaleString('fr-FR')} €</span>
+                <span>Max: {Math.round(potentialData.loyer * 1.1).toLocaleString('fr-FR')} €</span>
               </div>
               <div className="mt-3 inline-block px-2 py-1 rounded-full text-xs" style={{ backgroundColor: 'rgba(184, 169, 148, 0.2)', color: '#b8a994' }}>
                 Fiabilité satisfaisante (3/5)
@@ -302,10 +497,10 @@ const TotalSummary: React.FC = () => {
                 <DollarSign className="w-6 h-6 mr-3" style={{ color: '#b8a994' }} />
                 <h3 className="text-xl font-semibold" style={{ color: '#c1a16a' }}>Coût au m²</h3>
               </div>
-              <div className="text-3xl font-bold text-gray-900 mb-2">2 979 € TTC</div>
+              <div className="text-3xl font-bold text-gray-900 mb-2">{Math.round(potentialData.coutTotal / 150).toLocaleString('fr-FR')} € TTC</div>
               <div className="text-gray-600 mb-4">Tout compris (travaux + honoraires)</div>
               <div className="text-sm text-gray-500">
-                Comparé au marché local: <span className="font-semibold" style={{ color: '#787346' }}>-48%</span>
+                Estimation basée sur les coûts réels du marché
               </div>
             </div>
 
@@ -317,16 +512,16 @@ const TotalSummary: React.FC = () => {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Valeur estimée terminé:</span>
-                  <span className="font-bold text-gray-900">1 563 820 €</span>
+                  <span className="font-bold text-gray-900">{potentialData.valeurTotale.toLocaleString('fr-FR')} €</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Coût total projet:</span>
-                  <span className="font-bold text-gray-900">432 011 €</span>
+                  <span className="font-bold text-gray-900">{potentialData.coutTotal.toLocaleString('fr-FR')} €</span>
                 </div>
                 <div className="border-t border-gray-200 pt-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Plus-value brute:</span>
-                    <span className="font-bold text-2xl" style={{ color: '#787346' }}>1 131 809 €</span>
+                    <span className="font-bold text-2xl" style={{ color: '#787346' }}>{potentialData.plusValue.toLocaleString('fr-FR')} €</span>
                   </div>
                   <div className="text-sm text-gray-500 mt-2">
                     (Hors coût terrain et frais annexes)
@@ -335,8 +530,256 @@ const TotalSummary: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Analyse Comparative des Solutions */}
+          <div className="mt-8 bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+            <div className="flex items-center mb-6">
+              <TrendingUp className="w-6 h-6 mr-3" style={{ color: '#c1a16a' }} />
+              <h3 className="text-xl font-semibold" style={{ color: '#c1a16a' }}>ANALYSE COMPARATIVE DES SOLUTIONS</h3>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Solution Coliving */}
+              <div className={`bg-gradient-to-br from-white to-gray-50 rounded-lg p-5 border shadow-sm ${
+                solution === 'coliving' ? 'border-2' : 'border'
+              }`} style={{ 
+                borderColor: solution === 'coliving' ? '#c1a16a' : '#e5e7eb'
+              }}>
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-lg font-semibold" style={{ color: '#787346' }}>Solution COLIVING</h4>
+                  {solution === 'coliving' && (
+                    <span className="text-xs px-2 py-1 rounded-full font-medium" style={{ 
+                      backgroundColor: 'rgba(193, 161, 106, 0.2)', 
+                      color: '#c1a16a' 
+                    }}>
+                      ● Sélectionnée
+                    </span>
+                  )}
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Investissement total:</span>
+                    <span className="font-bold text-gray-900">{(() => {
+                      const amelioration55Ht = 16560 + 12420 + 13456;
+                      const renovation10Ht = 21738 + 23633 + 12766 + 23324 + 19666 + 15112 + 12006 + 25876 + 20700;
+                      const variables20Ht = 10350 + 11730 + 11040;
+                      const totalHt = amelioration55Ht + renovation10Ht + variables20Ht;
+                      const tva55 = Math.round(amelioration55Ht * 0.055);
+                      const tva10 = Math.round(renovation10Ht * 0.10);
+                      const tva20 = Math.round(variables20Ht * 0.2);
+                      const totalTtc = totalHt + tva55 + tva10 + tva20 + 8514 - 2500;
+                      return totalTtc.toLocaleString('fr-FR');
+                    })()} €</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Valeur de revente:</span>
+                    <span className="font-bold text-green-600">515 000 €</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Plus-value brute:</span>
+                    <span className="font-bold text-green-600">{(() => {
+                      const amelioration55Ht = 16560 + 12420 + 13456;
+                      const renovation10Ht = 21738 + 23633 + 12766 + 23324 + 19666 + 15112 + 12006 + 25876 + 20700;
+                      const variables20Ht = 10350 + 11730 + 11040;
+                      const totalHt = amelioration55Ht + renovation10Ht + variables20Ht;
+                      const tva55 = Math.round(amelioration55Ht * 0.055);
+                      const tva10 = Math.round(renovation10Ht * 0.10);
+                      const tva20 = Math.round(variables20Ht * 0.2);
+                      const totalTtc = totalHt + tva55 + tva10 + tva20 + 8514 - 2500;
+                      const plusValue = 515000 - totalTtc;
+                      return plusValue.toLocaleString('fr-FR');
+                    })()} €</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Loyer mensuel:</span>
+                    <span className="font-bold text-blue-600">2 420 €</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Rendement brut:</span>
+                    <span className="font-bold text-blue-600">{(() => {
+                      const amelioration55Ht = 16560 + 12420 + 13456;
+                      const renovation10Ht = 21738 + 23633 + 12766 + 23324 + 19666 + 15112 + 12006 + 25876 + 20700;
+                      const variables20Ht = 10350 + 11730 + 11040;
+                      const totalHt = amelioration55Ht + renovation10Ht + variables20Ht;
+                      const tva55 = Math.round(amelioration55Ht * 0.055);
+                      const tva10 = Math.round(renovation10Ht * 0.10);
+                      const tva20 = Math.round(variables20Ht * 0.2);
+                      const totalTtc = totalHt + tva55 + tva10 + tva20 + 8514 - 2500;
+                      const rendement = (2420 * 12 / totalTtc * 100);
+                      return rendement.toFixed(1);
+                    })()}%</span>
+                  </div>
+                </div>
+                
+                <div className="mt-4 p-3 rounded-lg border border-gray-200" style={{ backgroundColor: 'rgba(193, 161, 106, 0.1)' }}>
+                  <div className="text-sm font-medium" style={{ color: '#787346' }}>⚡ Points forts</div>
+                  <div className="text-xs text-gray-700 mt-1">
+                    • Plus-value importante • Loyers élevés • Gestion simplifiée
+                  </div>
+                </div>
+              </div>
+
+              {/* Solution 3 Logements */}
+              <div className={`bg-gradient-to-br from-white to-gray-50 rounded-lg p-5 border shadow-sm ${
+                solution === 'logements' ? 'border-2' : 'border'
+              }`} style={{ 
+                borderColor: solution === 'logements' ? '#c1a16a' : '#e5e7eb'
+              }}>
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-lg font-semibold" style={{ color: '#787346' }}>Solution 3 LOGEMENTS</h4>
+                  {solution === 'logements' && (
+                    <span className="text-xs px-2 py-1 rounded-full font-medium" style={{ 
+                      backgroundColor: 'rgba(193, 161, 106, 0.2)', 
+                      color: '#c1a16a' 
+                    }}>
+                      ● Sélectionnée
+                    </span>
+                  )}
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Investissement total:</span>
+                    <span className="font-bold text-gray-900">{(() => {
+                      const amelioration55Ht = 16560 + 12420 + 20184;
+                      const renovation10Ht = 21738 + 23633 + 12766 + 23324 + 19666 + 15112 + 12006 + 30534 + 27945;
+                      const variables20Ht = 15600 + 16500 + 14290;
+                      const totalHt = amelioration55Ht + renovation10Ht + variables20Ht;
+                      const tva55 = Math.round(amelioration55Ht * 0.055);
+                      const tva10 = Math.round(renovation10Ht * 0.10);
+                      const tva20 = Math.round(variables20Ht * 0.2);
+                      const totalTtc = totalHt + tva55 + tva10 + tva20 + 8514 - 2500;
+                      return totalTtc.toLocaleString('fr-FR');
+                    })()} €</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Valeur de revente:</span>
+                    <span className="font-bold text-green-600">471 000 €</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Plus-value brute:</span>
+                    <span className="font-bold text-green-600">{(() => {
+                      const amelioration55Ht = 16560 + 12420 + 20184;
+                      const renovation10Ht = 21738 + 23633 + 12766 + 23324 + 19666 + 15112 + 12006 + 30534 + 27945;
+                      const variables20Ht = 15600 + 16500 + 14290;
+                      const totalHt = amelioration55Ht + renovation10Ht + variables20Ht;
+                      const tva55 = Math.round(amelioration55Ht * 0.055);
+                      const tva10 = Math.round(renovation10Ht * 0.10);
+                      const tva20 = Math.round(variables20Ht * 0.2);
+                      const totalTtc = totalHt + tva55 + tva10 + tva20 + 8514 - 2500;
+                      const plusValue = 471000 - totalTtc;
+                      return plusValue.toLocaleString('fr-FR');
+                    })()} €</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Loyer mensuel total:</span>
+                    <span className="font-bold text-blue-600">1 884 €</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Rendement brut:</span>
+                    <span className="font-bold text-blue-600">{(() => {
+                      const amelioration55Ht = 16560 + 12420 + 20184;
+                      const renovation10Ht = 21738 + 23633 + 12766 + 23324 + 19666 + 15112 + 12006 + 30534 + 27945;
+                      const variables20Ht = 15600 + 16500 + 14290;
+                      const totalHt = amelioration55Ht + renovation10Ht + variables20Ht;
+                      const tva55 = Math.round(amelioration55Ht * 0.055);
+                      const tva10 = Math.round(renovation10Ht * 0.10);
+                      const tva20 = Math.round(variables20Ht * 0.2);
+                      const totalTtc = totalHt + tva55 + tva10 + tva20 + 8514 - 2500;
+                      const rendement = (1884 * 12 / totalTtc * 100);
+                      return rendement.toFixed(1);
+                    })()}%</span>
+                  </div>
+                </div>
+                
+                <div className="mt-4 p-3 rounded-lg border border-gray-200" style={{ backgroundColor: 'rgba(184, 169, 148, 0.1)' }}>
+                  <div className="text-sm font-medium" style={{ color: '#787346' }}>⚡ Points forts</div>
+                  <div className="text-xs text-gray-700 mt-1">
+                    • Réversibilité facile • Moins de risques locatifs • Flexibilité
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Synthèse */}
+            <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ backgroundColor: '#c1a16a' }}>
+                  <span className="text-white text-sm font-bold">💡</span>
+                </div>
+                <div>
+                  <div className="font-semibold mb-2" style={{ color: '#787346' }}>Synthèse Comparative</div>
+                  <div className="text-sm text-gray-700">
+                    <strong>Solution Coliving</strong> : Rendement et plus-value optimaux pour un profil expérimenté acceptant une gestion spécialisée.<br/>
+                    <strong>Solution 3 Logements</strong> : Approche sécurisée avec réversibilité intégrée, adaptée aux investissements prudents.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Styles CSS pour l'animation de scroll hint */}
+      <style>{`
+        .scroll-hint {
+          position: relative;
+        }
+        
+        .scroll-hint:hover {
+          animation: scrollHint 1.5s ease-in-out;
+        }
+        
+        @keyframes scrollHint {
+          0%, 100% {
+            transform: translateX(0);
+          }
+          25% {
+            transform: translateX(8px);
+          }
+          50% {
+            transform: translateX(-4px);
+          }
+          75% {
+            transform: translateX(8px);
+          }
+        }
+        
+        .scroll-hint::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          right: -10px;
+          width: 0;
+          height: 0;
+          border-left: 6px solid #c1a16a;
+          border-top: 4px solid transparent;
+          border-bottom: 4px solid transparent;
+          transform: translateY(-50%);
+          opacity: 0.6;
+          animation: arrowPulse 2s infinite;
+        }
+        
+        @keyframes arrowPulse {
+          0%, 100% {
+            opacity: 0.6;
+            transform: translateY(-50%) translateX(0);
+          }
+          50% {
+            opacity: 1;
+            transform: translateY(-50%) translateX(3px);
+          }
+        }
+      `}</style>
     </section>
   );
 };

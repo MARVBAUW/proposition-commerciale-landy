@@ -3,23 +3,27 @@ import { Home, Users, Mountain, MapPin, Waves, Building } from 'lucide-react';
 
 const ProjectSummary: React.FC = () => {
   const characteristics = [
-    { icon: Home, label: 'Surface habitable', value: '145 m²' },
-    { icon: Building, label: 'Configuration', value: 'Maison à étage avec piscine' },
-    { icon: Mountain, label: 'Terrain', value: 'Argileux, pentu' },
-    { icon: Waves, label: 'Piscine', value: '32 m²' },
-    { icon: Users, label: 'Chambres', value: '4 chambres + 1 bureau' },
-    { icon: MapPin, label: 'Salles d\'eau', value: '1 salle de bain + 1 salle d\'eau' },
+    { icon: Home, label: 'Surface habitable', value: '150 m²' },
+    { icon: Building, label: 'Configuration', value: 'Bâtiment 3 niveaux à rénover' },
+    { icon: Mountain, label: 'Type de projet', value: 'Rénovation lourde' },
+    { icon: Waves, label: 'Solutions proposées', value: '2 options : Coliving ou 3 logements' },
+    { icon: Users, label: 'Option Coliving', value: '4-5 chambres sur 3 niveaux' },
+    { icon: MapPin, label: 'Option 3 logements', value: '1 logement par niveau' },
   ];
 
   const technical = [
-    'Chauffage par pompe à chaleur réversible',
-    'Climatisation complète',
-    'Domotique',
-    'Menuiseries aluminium double vitrage',
-    'Volets roulants électriques',
-    'Carrelage milieu de gamme',
-    'Toiture tuiles rondes',
-    'Façade enduit'
+    'Démolition complète : planchers, cloisons, équipements existants',
+    'Gros œuvre : reprise structure, planchers bois, réseaux évacuation',
+    'Charpente : rénovation traditionnelle avec renforcement',
+    'Isolation thermique réglementaire renforcée',
+    'Menuiseries bois neuves avec porte anti-effraction',
+    'Installations électriques complètes selon NFC 15-100',
+    'Plomberie et sanitaire : prestations avancées complètes',
+    'Chauffage PAC air/air et climatisation avec régulation',
+    'Cloisons de distribution et finitions plâtrerie',
+    'Revêtements : carrelage, faïence, parquet selon zones',
+    'Peinture et finitions dans tous les locaux',
+    'Équipements cuisine et sanitaires (2 salles d\'eau)'
   ];
 
   return (
@@ -42,16 +46,19 @@ const ProjectSummary: React.FC = () => {
             </div>
             
             <div className="mt-6 pt-4 border-t border-gray-200">
-              <h4 className="text-lg font-semibold mb-3" style={{ color: '#787346' }}>Distribution</h4>
+              <h4 className="text-lg font-semibold mb-3" style={{ color: '#787346' }}>Distribution actuelle</h4>
               <div className="space-y-2 text-sm">
                 <div className="text-gray-600">
-                  <span className="font-medium" style={{ color: '#c1a16a' }}>Rez-de-chaussée:</span> Entrée, 3 chambres, 1 bureau, salle de bain, salle d'eau, WC, placards
+                  <span className="font-medium" style={{ color: '#c1a16a' }}>RDC:</span> Espaces à restructurer selon solution choisie
                 </div>
                 <div className="text-gray-600">
-                  <span className="font-medium" style={{ color: '#c1a16a' }}>Étage:</span> Salon/salle à manger, cuisine ouverte, suite parentale, salle d'eau, WC, cellier, terrasse
+                  <span className="font-medium" style={{ color: '#c1a16a' }}>R+1:</span> Niveau intermédiaire à aménager
                 </div>
                 <div className="text-gray-600">
-                  <span className="font-medium" style={{ color: '#c1a16a' }}>Extérieurs:</span> Piscine 32 m², terrasse, parking
+                  <span className="font-medium" style={{ color: '#c1a16a' }}>R+2:</span> Combles à réhabiliter
+                </div>
+                <div className="text-gray-600 mt-3 p-3 bg-blue-50 rounded-lg">
+                  <span className="font-medium" style={{ color: '#c1a16a' }}>Note:</span> Plans détaillés disponibles pour les 2 solutions (Coliving 4-5 chambres ou 3 logements distincts)
                 </div>
               </div>
             </div>

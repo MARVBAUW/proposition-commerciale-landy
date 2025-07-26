@@ -8,32 +8,46 @@ import Exclusions from './components/Exclusions';
 import Timeline from './components/Timeline';
 import NavigationSidebar from './components/NavigationSidebar';
 import Footer from './components/Footer';
+import SolutionToggle from './components/SolutionToggle';
+import DocumentsSection from './components/DocumentsSection';
+import TutorialPopup from './components/TutorialPopup';
+import InstallPrompt from './components/InstallPrompt';
 import { Monitor, Smartphone } from 'lucide-react';
-// Stagewise imports - Commented out for now due to plugin issues
-// import { StagewiseToolbar } from '@stagewise/toolbar-react';
-// import ReactPlugin from '@stagewise-plugins/react';
 
 function App() {
   const [isDesktopMode, setIsDesktopMode] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [currentSolution, setCurrentSolution] = useState<'coliving' | 'logements'>('coliving');
+  const [showTutorial, setShowTutorial] = useState(false);
 
   useEffect(() => {
-    // Détecter si on est vraiment sur un device mobile
-    const checkRealMobile = () => {
-      // Utiliser la taille réelle de l'écran, pas le viewport
+    // Détecter si on est sur un device mobile ou une fenêtre étroite
+    const checkMobile = () => {
       const realScreenWidth = window.screen.width;
+      const viewportWidth = window.innerWidth;
       const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
       const userAgent = navigator.userAgent.toLowerCase();
       const isMobileUA = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
       
-      // Considérer comme mobile SEULEMENT si:
-      // - Écran réel < 768px ET device tactile ET user agent mobile
-      const isRealMobile = realScreenWidth < 768 && isTouchDevice && isMobileUA;
-      setIsMobile(isRealMobile);
+      // Afficher le bouton si :
+      // - Device mobile réel OU viewport étroit avec tactile OU viewport très étroit (dev/test)
+      const showMobileToggle = (realScreenWidth < 768 && isTouchDevice && isMobileUA) || 
+                              (viewportWidth < 768 && isTouchDevice) ||
+                              (viewportWidth < 640); // Forcer sur très petits écrans
+      setIsMobile(showMobileToggle);
     };
     
-    checkRealMobile();
-    // Pas besoin d'écouter resize car on détecte le device physique
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    // Vérifier si le tutoriel doit être affiché
+    const hasSeenTutorial = localStorage.getItem('progineer-tutorial-seen');
+    if (!hasSeenTutorial) {
+      // Afficher le tutoriel après un court délai pour laisser la page se charger
+      setTimeout(() => setShowTutorial(true), 1000);
+    }
+    
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const toggleDesktopMode = () => {
@@ -61,12 +75,9 @@ function App() {
 
   return (
     <div className={`min-h-screen bg-gray-50 text-gray-900 ${isDesktopMode ? 'force-desktop' : ''}`}>
-      {/* {import.meta.env.DEV && (
-        <StagewiseToolbar config={{ plugins: [ReactPlugin()] }} />
-      )} */}
       
-      {/* Bouton de basculement mode desktop/mobile - visible uniquement sur VRAIS mobiles */}
-      {isMobile && window.screen && window.screen.width < 768 && (
+      {/* Bouton de basculement mode desktop/mobile - visible sur mobiles et tablettes */}
+      {isMobile && (
         <div 
           id="toggle-button-container"
           style={{
@@ -109,18 +120,31 @@ function App() {
       
       {/* Contenu principal avec padding pour éviter le chevauchement */}
       <div className={`${isDesktopMode ? 'pl-16 pb-0' : 'lg:pl-16 pb-20 lg:pb-0'}`}>
-        <Header isDesktopMode={isDesktopMode} />
+        <Header 
+          isDesktopMode={isDesktopMode} 
+          solution={currentSolution} 
+          onShowTutorial={() => setShowTutorial(true)}
+        />
         <div data-section="project-summary">
           <ProjectSummary />
         </div>
+        <div data-section="solutions">
+          <SolutionToggle 
+            currentSolution={currentSolution} 
+            onSolutionChange={setCurrentSolution} 
+          />
+        </div>
         <div data-section="pricing">
-          <PricingBreakdown />
+          <PricingBreakdown solution={currentSolution} />
         </div>
         <div data-section="services">
           <Services />
         </div>
         <div data-section="total">
-          <TotalSummary />
+          <TotalSummary solution={currentSolution} />
+        </div>
+        <div data-section="documents">
+          <DocumentsSection currentSolution={currentSolution} />
         </div>
         <div data-section="exclusions">
           <Exclusions />
@@ -130,6 +154,17 @@ function App() {
         </div>
         <Footer />
       </div>
+
+      {/* Tutoriel interactif */}
+      {showTutorial && (
+        <TutorialPopup
+          isDesktopMode={isDesktopMode}
+          onClose={() => setShowTutorial(false)}
+        />
+      )}
+
+      {/* Prompt d'installation PWA */}
+      <InstallPrompt />
       
       {/* Styles CSS pour forcer le mode desktop - rendu fidèle au web */}
       {isDesktopMode && (

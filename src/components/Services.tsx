@@ -5,45 +5,47 @@ const Services: React.FC = () => {
   const services = [
     {
       icon: Target,
-      title: "CONCEPTION",
-      subtitle: "(Esquisse à Permis de Construire)",
+      title: "ÉTUDES PRÉALABLES AVP",
+      subtitle: "(Phase actuelle)",
       items: [
-        "Esquisse : Étude de faisabilité et premiers plans",
-        "Avant-projet sommaire (APS) : Définition des volumes et surfaces",
-        "Avant-projet définitif (APD) : Plans définitifs et choix techniques",
-        "Dossier de Permis de Construire : Constitution et dépôt du dossier"
+        "Diagnostic existant et relevés sur site",
+        "Étude de faisabilité des 2 solutions proposées",
+        "Estimation financière détaillée des travaux",
+        "Analyse du potentiel immobilier et rentabilité"
       ]
     },
     {
       icon: FileText,
-      title: "PRÉPARATION DES TRAVAUX",
-      subtitle: "",
+      title: "AVANT-PROJET DÉFINITIF",
+      subtitle: "(Phase suivante - Déverrouillage après choix solution)",
       items: [
-        "Projet d'exécution : Plans techniques détaillés pour les entreprises",
-        "Assistance aux contrats de travaux : Aide à la consultation et sélection des entreprises",
-        "Établissement du planning général des travaux"
+        "Plans d'exécution définitifs de la solution retenue",
+        "Dépôt autorisation copropriété et ABF",
+        "Finalisation du cahier des charges détaillé",
+        "Préparation dossier consultation entreprises"
       ]
     },
     {
       icon: Hammer,
-      title: "SUIVI DE CHANTIER",
-      subtitle: "",
+      title: "CONSULTATION ENTREPRISES",
+      subtitle: "(DCE - Septembre 2025)",
       items: [
-        "Direction d'exécution des travaux (DET) : Coordination et contrôle du chantier",
-        "Visites régulières : Vérification de la conformité aux plans",
-        "Réunions de chantier : Animation et compte-rendus",
-        "Validation des travaux : Contrôle qualité à chaque étape"
+        "Édition cahiers des charges par corps d'état",
+        "Consultation et analyse des offres entreprises",
+        "Négociation et calage technique des prix",
+        "Attribution des marchés et préparation chantier"
       ]
     },
     {
       icon: Award,
-      title: "LIVRAISON",
-      subtitle: "",
+      title: "SUIVI DE CHANTIER",
+      subtitle: "(Octobre 2025 - Avril 2026)",
       items: [
-        "Opérations préalables à la réception (OPR) : Vérifications finales",
-        "Assistance à la réception des travaux : Accompagnement lors de la livraison",
-        "Levée des réserves : Suivi jusqu'à parfait achèvement",
-        "Remise de la documentation : Dossier des ouvrages exécutés (DOE)"
+        "Direction d'exécution des travaux (DET)",
+        "Coordination des entreprises et planning",
+        "Contrôle qualité et conformité aux plans",
+        "Réception des travaux et levée des réserves",
+        "⚠️ Note : Cette prestation sera incluse dans l'offre d'ACTIV TRAVAUX"
       ]
     }
   ];
@@ -55,7 +57,7 @@ const Services: React.FC = () => {
         
         {/* Honoraires */}
         <div className="bg-gradient-to-r from-white to-gray-50 rounded-lg p-3 sm:p-6 border border-gray-200 shadow-sm mb-4 sm:mb-8">
-          <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4" style={{ color: '#787346' }}>Missions incluses (8,2% du montant des travaux)</h3>
+          <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4" style={{ color: '#787346' }}>Missions incluses (Forfait étude APD)</h3>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[600px]">
               <thead>
@@ -69,9 +71,9 @@ const Services: React.FC = () => {
               <tbody>
                 <tr className="bg-gray-100/50">
                   <td className="px-2 sm:px-4 py-2 sm:py-3 text-gray-900 font-semibold text-xs sm:text-sm">Honoraires de maîtrise d'œuvre</td>
-                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right text-gray-900 font-mono font-bold text-xs sm:text-sm whitespace-nowrap">27 283,49 €</td>
-                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right text-gray-600 font-mono text-xs sm:text-sm whitespace-nowrap">5 456,70 €</td>
-                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right font-mono font-bold text-xs sm:text-sm whitespace-nowrap" style={{ color: '#c1a16a' }}>32 740,19 €</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right text-gray-900 font-mono font-bold text-xs sm:text-sm whitespace-nowrap">7 095,00 €</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right text-gray-600 font-mono text-xs sm:text-sm whitespace-nowrap">1 419,00 €</td>
+                  <td className="px-1 sm:px-4 py-2 sm:py-3 text-right font-mono font-bold text-xs sm:text-sm whitespace-nowrap" style={{ color: '#c1a16a' }}>8 514,00 €</td>
                 </tr>
               </tbody>
             </table>

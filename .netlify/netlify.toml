@@ -7,7 +7,7 @@ headers = []
 [functions."*"]
 
 [build]
-publish = "C:\\Users\\progi\\OneDrive\\PROGINEER\\02-AFFAIRES\\DEVIS EN ATTENTE\\LANDY\\PROPOSITION-COMMERCIALE-main\\dist"
+publish = "C:\\Users\\progi\\OneDrive\\PROGINEER\\02-AFFAIRES\\13.06.25- CURIOL ACTIV TRAVAUX\\05 - Pièces écrites et Plans\\05.4 - APD\\projet-rénovation-curiol\\dist"
 publishOrigin = "config"
 commandOrigin = "config"
 command = "npm run build"

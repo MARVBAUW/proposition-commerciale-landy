@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Calculator, Wrench, DollarSign, AlertTriangle, Clock, FileText, Handshake, TrendingUp } from 'lucide-react';
+import { Home, Calculator, Wrench, DollarSign, AlertTriangle, Clock, FileText, Handshake, TrendingUp, FolderOpen } from 'lucide-react';
 
 interface NavigationSidebarProps {
   isDesktopMode?: boolean;
@@ -10,13 +10,15 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({ isDesktopMode = f
   const [showLabels, setShowLabels] = useState(false);
 
   const sections = [
-    { id: 'project-summary', label: 'Synthèse', labelMobile: 'Synthèse', icon: FileText },
+    { id: 'project-summary', label: 'Synthèse Projet', labelMobile: 'Synthèse', icon: FileText },
+    { id: 'solutions', label: 'Solutions Proposées', labelMobile: 'Solutions', icon: Home },
     { id: 'pricing', label: 'Coût des travaux', labelMobile: 'Coûts', icon: Calculator },
     { id: 'services', label: 'Maîtrise d\'œuvre', labelMobile: 'Services', icon: Wrench },
-    { id: 'potential', label: 'Potentiel immobilier', labelMobile: 'Potentiel', icon: TrendingUp },
+    { id: 'documents', label: 'Plans & Documents', labelMobile: 'Documents', icon: FolderOpen },
+    { id: 'potential', label: 'Potentiel Immobilier', labelMobile: 'Potentiel', icon: TrendingUp },
     { id: 'total', label: 'Récapitulatif', labelMobile: 'Total', icon: DollarSign },
     { id: 'exclusions', label: 'Exclusions', labelMobile: 'Exclusions', icon: AlertTriangle },
-    { id: 'timeline', label: 'Planning', labelMobile: 'Planning', icon: Clock },
+    { id: 'timeline', label: 'Planning AVP', labelMobile: 'Planning', icon: Clock },
     { id: 'footer', label: 'Collaboration', labelMobile: 'Collaboration', icon: Handshake }
   ];
 
@@ -28,8 +30,10 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({ isDesktopMode = f
       // Chercher toutes les sections disponibles
       const sectionElements = [
         { id: 'project-summary', element: document.querySelector('[data-section="project-summary"]') },
+        { id: 'solutions', element: document.querySelector('[data-section="solutions"]') },
         { id: 'pricing', element: document.querySelector('[data-section="pricing"]') },
         { id: 'services', element: document.querySelector('[data-section="services"]') },
+        { id: 'documents', element: document.querySelector('[data-section="documents"]') },
         { id: 'potential', element: document.querySelector('[data-section="potential"]') },
         { id: 'total', element: document.querySelector('[data-section="total"]') },
         { id: 'exclusions', element: document.querySelector('[data-section="exclusions"]') },
@@ -73,8 +77,10 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({ isDesktopMode = f
     
     // Mapping des sections avec leurs sélecteurs
     const sectionMap: { [key: string]: string } = {
+      'solutions': '[data-section="solutions"]',
       'pricing': '[data-section="pricing"]',
       'services': '[data-section="services"]',
+      'documents': '[data-section="documents"]',
       'potential': '[data-section="potential"]',
       'total': '[data-section="total"]',
       'exclusions': '[data-section="exclusions"]',

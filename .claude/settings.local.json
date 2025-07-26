@@ -10,7 +10,10 @@
       "Bash(netlify sites:create:*)",
       "Bash(netlify:*)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(powershell:*)",
+      "Bash(npm run lint)",
+      "Bash(node:*)"
     ],
     "deny": []
   }

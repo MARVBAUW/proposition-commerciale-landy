@@ -9,203 +9,321 @@ import {
   Image
 } from '@react-pdf/renderer';
 
+interface PdfDocumentProps {
+  solution?: 'coliving' | 'logements';
+}
+
+
 // Données extraites des composants React (synchronisées avec l'UI web)
 const characteristics = [
-  { label: 'Surface habitable', value: '145 m²' },
-  { label: 'Configuration', value: 'Maison à étage avec piscine' },
-  { label: 'Terrain', value: 'Argileux, pentu' },
-  { label: 'Piscine', value: '32 m²' },
-  { label: 'Chambres', value: '4 chambres + 1 bureau' },
-  { label: 'Salles d\'eau', value: '2 salles de bain + 1 salle d\'eau' },
+  { label: 'Surface habitable', value: '150 m²' },
+  { label: 'Configuration', value: 'Bâtiment 3 niveaux à rénover' },
+  { label: 'Type de projet', value: 'Rénovation lourde' },
+  { label: 'Solutions proposées', value: '2 options : Coliving ou 3 logements' },
+  { label: 'Option Coliving', value: '4-5 chambres sur 3 niveaux' },
+  { label: 'Option 3 logements', value: '1 logement par niveau' },
 ];
 const technical = [
-  'Chauffage par pompe à chaleur réversible',
-  'Climatisation complète',
-  'Domotique',
-  'Menuiseries aluminium double vitrage',
-  'Volets roulants électriques',
-  'Carrelage milieu de gamme',
-  'Toiture tuiles rondes',
-  'Façade enduit'
+  'Démolition complète : planchers, cloisons, équipements existants',
+  'Gros œuvre : reprise structure, planchers bois, réseaux évacuation',
+  'Charpente : rénovation traditionnelle avec renforcement',
+  'Isolation thermique réglementaire renforcée',
+  'Menuiseries bois neuves avec porte anti-effraction',
+  'Installations électriques complètes selon NFC 15-100',
+  'Plomberie et sanitaire : prestations avancées complètes',
+  'Chauffage PAC air/air et climatisation avec régulation',
+  'Cloisons de distribution et finitions plâtrerie',
+  'Revêtements : carrelage, faïence, parquet selon zones',
+  'Peinture et finitions dans tous les locaux',
+  'Équipements cuisine et sanitaires (2 salles d\'eau)'
 ];
 const pricingSections = [
   {
-    title: 'TERRASSEMENT ET VIABILISATION', icon: '🚧', rows: [
-      { title: 'Terrassements viabilisation (terrain argileux pentu)', ht: '32 987,50 €', tva: '6 597,50 €', ttc: '39 585,00 €' },
-    ], subtotal: { ht: '32 987,50 €', tva: '6 597,50 €', ttc: '39 585,00 €' }
+    title: 'DÉMOLITION ET DÉPOSE', icon: '🔨', rows: [
+      { title: 'Plâtrerie à démolir (100%)', ht: '3 934,00 €', tva: '216,37 €', ttc: '4 150,37 €' },
+      { title: 'Revêtements de sol à démolir', ht: '5 176,00 €', tva: '284,68 €', ttc: '5 460,68 €' },
+      { title: 'Menuiseries intérieures à déposer', ht: '2 070,00 €', tva: '113,85 €', ttc: '2 183,85 €' },
+      { title: 'Menuiseries extérieures à déposer', ht: '1 656,00 €', tva: '91,08 €', ttc: '1 747,08 €' },
+      { title: 'Plomberie ancienne à déposer', ht: '3 520,00 €', tva: '193,60 €', ttc: '3 713,60 €' },
+      { title: 'Équipements sanitaires à déposer', ht: '1 656,00 €', tva: '91,08 €', ttc: '1 747,08 €' },
+      { title: 'Électricité ancienne à déposer', ht: '3 726,00 €', tva: '204,93 €', ttc: '3 930,93 €' },
+    ], subtotal: { ht: '21 738,00 €', tva: '1 195,59 €', ttc: '22 933,59 €' }
   },
   {
-    title: 'GROS ŒUVRE ET MAÇONNERIE', icon: '🏗️', rows: [
-      { title: 'Gros œuvre parpaing', ht: '73 587,50 €', tva: '14 717,50 €', ttc: '88 305,00 €' },
-    ], subtotal: { ht: '73 587,50 €', tva: '14 717,50 €', ttc: '88 305,00 €' }
+    title: 'GROS ŒUVRE ET STRUCTURE', icon: '🏗️', rows: [
+      { title: 'Plancher bois (100 m²)', ht: '11 040,00 €', tva: '607,20 €', ttc: '11 647,20 €' },
+      { title: 'Reprise réseaux évacuation (25 ml)', ht: '4 140,00 €', tva: '227,70 €', ttc: '4 367,70 €' },
+      { title: 'Ouverture mur porteur (10 m²)', ht: '1 656,00 €', tva: '91,08 €', ttc: '1 747,08 €' },
+      { title: 'Création trémie (1 m²)', ht: '1 242,00 €', tva: '68,31 €', ttc: '1 310,31 €' },
+      { title: 'Chape (150 m²)', ht: '4 554,00 €', tva: '250,47 €', ttc: '4 804,47 €' },
+      { title: 'Raccordement réseau urbain (5 ml)', ht: '1 001,00 €', tva: '55,06 €', ttc: '1 056,06 €' },
+    ], subtotal: { ht: '23 633,00 €', tva: '1 299,82 €', ttc: '24 932,82 €' }
   },
   {
-    title: 'CHARPENTE ET COUVERTURE', icon: '🏠', rows: [
-      { title: 'Charpente industrielle', ht: '6 027,87 €', tva: '1 205,58 €', ttc: '7 233,45 €' },
-      { title: 'Couverture tuile ronde', ht: '17 381,87 €', tva: '3 476,38 €', ttc: '20 858,25 €' },
-    ], subtotal: { ht: '23 409,74 €', tva: '4 681,96 €', ttc: '28 091,70 €' }
+    title: 'CHARPENTE ET TOITURE', icon: '🏠', rows: [
+      { title: 'Charpente traditionnelle rénovation (50 m²)', ht: '12 766,00 €', tva: '702,13 €', ttc: '13 468,13 €' },
+    ], subtotal: { ht: '12 766,00 €', tva: '702,13 €', ttc: '13 468,13 €' }
   },
   {
-    title: 'ISOLATION ET FAÇADES', icon: '🧱', rows: [
-      { title: 'Isolation thermique réglementaire', ht: '10 150,00 €', tva: '2 030,00 €', ttc: '12 180,00 €' },
-      { title: 'Façade enduit', ht: '8 881,25 €', tva: '1 776,25 €', ttc: '10 657,50 €' },
-    ], subtotal: { ht: '19 031,25 €', tva: '3 806,25 €', ttc: '22 837,50 €' }
+    title: 'ISOLATION THERMIQUE', icon: '🧱', rows: [
+      { title: 'Isolation thermique réglementaire', ht: '16 560,00 €', tva: '910,80 €', ttc: '17 470,80 €' },
+    ], subtotal: { ht: '16 560,00 €', tva: '910,80 €', ttc: '17 470,80 €' }
   },
   {
     title: 'MENUISERIES EXTÉRIEURES', icon: '🚪', rows: [
-      { title: 'Menuiseries extérieures aluminium', ht: '21 238,87 €', tva: '4 247,79 €', ttc: '25 486,66 €' },
-    ], subtotal: { ht: '21 238,87 €', tva: '4 247,79 €', ttc: '25 486,66 €' }
+      { title: 'Remplacement menuiseries bois (25 m²)', ht: '22 426,00 €', tva: '1 233,43 €', ttc: '23 659,43 €' },
+      { title: 'Création menuiserie bois (1 m²)', ht: '898,00 €', tva: '49,39 €', ttc: '947,39 €' },
+    ], subtotal: { ht: '23 324,00 €', tva: '1 282,82 €', ttc: '24 606,82 €' }
   },
   {
     title: 'INSTALLATIONS ÉLECTRIQUES', icon: '⚡', rows: [
-      { title: 'Électricité haut de gamme avec domotique', ht: '24 106,25 €', tva: '4 821,25 €', ttc: '28 927,50 €' },
-    ], subtotal: { ht: '24 106,25 €', tva: '4 821,25 €', ttc: '28 927,50 €' }
+      { title: 'Prestations avancées selon NFC 15-100', ht: '25 876,00 €', tva: '1 423,18 €', ttc: '27 299,18 €' },
+    ], subtotal: { ht: '25 876,00 €', tva: '1 423,18 €', ttc: '27 299,18 €' }
   },
   {
     title: 'PLOMBERIE ET SANITAIRE', icon: '🚰', rows: [
-      { title: 'Plomberie prestations de base', ht: '10 150,00 €', tva: '2 030,00 €', ttc: '12 180,00 €' },
-    ], subtotal: { ht: '10 150,00 €', tva: '2 030,00 €', ttc: '12 180,00 €' }
+      { title: 'Prestations avancées complètes', ht: '20 700,00 €', tva: '1 138,50 €', ttc: '21 838,50 €' },
+    ], subtotal: { ht: '20 700,00 €', tva: '1 138,50 €', ttc: '21 838,50 €' }
   },
   {
     title: 'CHAUFFAGE ET CLIMATISATION', icon: '🌡️', rows: [
-      { title: 'Chauffage de base', ht: '7 612,50 €', tva: '1 522,50 €', ttc: '9 135,00 €' },
-      { title: 'Climatisation', ht: '8 246,87 €', tva: '1 649,38 €', ttc: '9 896,25 €' },
-    ], subtotal: { ht: '15 859,37 €', tva: '3 171,88 €', ttc: '19 031,25 €' }
+      { title: 'Installation de chauffage central', ht: '12 420,00 €', tva: '683,10 €', ttc: '13 103,10 €' },
+      { title: 'Climatisation air/air avec PAC', ht: '13 456,00 €', tva: '740,08 €', ttc: '14 196,08 €' },
+    ], subtotal: { ht: '25 876,00 €', tva: '1 423,18 €', ttc: '27 299,18 €' }
   },
   {
     title: 'CLOISONS ET PLÂTRERIE', icon: '🧱', rows: [
-      { title: 'Plâtrerie avec spécificités techniques', ht: '13 321,87 €', tva: '2 664,38 €', ttc: '15 986,25 €' },
-    ], subtotal: { ht: '13 321,87 €', tva: '2 664,38 €', ttc: '15 986,25 €' }
+      { title: 'Cloisons de distribution et plâtrerie', ht: '19 666,00 €', tva: '1 081,63 €', ttc: '20 747,63 €' },
+    ], subtotal: { ht: '19 666,00 €', tva: '1 081,63 €', ttc: '20 747,63 €' }
   },
   {
     title: 'MENUISERIES INTÉRIEURES', icon: '🚪', rows: [
-      { title: 'Menuiseries intérieures standing', ht: '7 612,50 €', tva: '1 522,50 €', ttc: '9 135,00 €' },
-    ], subtotal: { ht: '7 612,50 €', tva: '1 522,50 €', ttc: '9 135,00 €' }
+      { title: 'Menuiseries intérieures standard', ht: '10 350,00 €', tva: '2 070,00 €', ttc: '12 420,00 €' },
+    ], subtotal: { ht: '10 350,00 €', tva: '2 070,00 €', ttc: '12 420,00 €' }
   },
   {
     title: 'REVÊTEMENTS DE SOLS ET MURS', icon: '🏠', rows: [
-      { title: 'Carrelage standing', ht: '11 571,00 €', tva: '2 314,20 €', ttc: '13 885,20 €' },
-      { title: 'Faïence standing', ht: '840,00 €', tva: '168,00 €', ttc: '1 008,00 €' },
-    ], subtotal: { ht: '12 411,00 €', tva: '2 482,20 €', ttc: '14 893,20 €' }
+      { title: 'Carrelage grès cérame pour sols', ht: '4 554,00 €', tva: '910,80 €', ttc: '5 464,80 €' },
+      { title: 'Faïence murale salle d\'eau', ht: '1 450,00 €', tva: '290,00 €', ttc: '1 740,00 €' },
+      { title: 'Parquet contrecollé chêne', ht: '9 108,00 €', tva: '1 821,60 €', ttc: '10 929,60 €' },
+    ], subtotal: { ht: '15 112,00 €', tva: '3 022,40 €', ttc: '18 134,40 €' }
   },
   {
     title: 'PEINTURE ET FINITIONS', icon: '🎨', rows: [
-      { title: 'Peinture de base', ht: '7 358,75 €', tva: '1 471,75 €', ttc: '8 830,50 €' },
-    ], subtotal: { ht: '7 358,75 €', tva: '1 471,75 €', ttc: '8 830,50 €' }
+      { title: 'Peinture complète murs et plafonds', ht: '12 006,00 €', tva: '2 401,20 €', ttc: '14 407,20 €' },
+    ], subtotal: { ht: '12 006,00 €', tva: '2 401,20 €', ttc: '14 407,20 €' }
   },
   {
-    title: 'ÉNERGIES RENOUVELABLES', icon: '🔋', rows: [
-      { title: 'Optimisation énergétique', ht: '9 070,25 €', tva: '1 814,05 €', ttc: '10 884,30 €' },
-    ], subtotal: { ht: '9 070,25 €', tva: '1 814,05 €', ttc: '10 884,30 €' }
-  },
-  {
-    title: 'AMÉNAGEMENTS EXTÉRIEURS', icon: '🌿', rows: [
-      { title: 'Aménagement paysager', ht: '503,12 €', tva: '100,63 €', ttc: '603,75 €' },
-      { title: 'Portail standard', ht: '1 968,75 €', tva: '393,75 €', ttc: '2 362,50 €' },
-      { title: 'Terrasse (25 m²)', ht: '5 075,00 €', tva: '1 015,00 €', ttc: '6 090,00 €' },
-    ], subtotal: { ht: '7 546,87 €', tva: '1 509,38 €', ttc: '9 056,25 €' }
-  },
-  {
-    title: 'ÉQUIPEMENTS AQUATIQUES', icon: '🏊', rows: [
-      { title: 'Piscine enterrée béton (32 m²)', ht: '37 800,00 €', tva: '7 560,00 €', ttc: '45 360,00 €' },
-    ], subtotal: { ht: '37 800,00 €', tva: '7 560,00 €', ttc: '45 360,00 €' }
-  },
-  {
-    title: 'AMÉNAGEMENT CUISINE', icon: '🍳', rows: [
-      { title: 'Cuisine gamme supérieure', ht: '11 812,50 €', tva: '2 362,50 €', ttc: '14 175,00 €' },
-    ], subtotal: { ht: '11 812,50 €', tva: '2 362,50 €', ttc: '14 175,00 €' }
+    title: 'ÉQUIPEMENTS CUISINE', icon: '🍳', rows: [
+      { title: 'Équipement cuisine complet', ht: '11 730,00 €', tva: '2 346,00 €', ttc: '14 076,00 €' },
+    ], subtotal: { ht: '11 730,00 €', tva: '2 346,00 €', ttc: '14 076,00 €' }
   },
   {
     title: 'ÉQUIPEMENTS SANITAIRES', icon: '🚿', rows: [
-      { title: 'Salles de bain premium (2 unités)', ht: '7 350,00 €', tva: '1 470,00 €', ttc: '8 820,00 €' },
-    ], subtotal: { ht: '7 350,00 €', tva: '1 470,00 €', ttc: '8 820,00 €' }
+      { title: 'Équipements sanitaires pour salles d\'eau', ht: '11 040,00 €', tva: '2 208,00 €', ttc: '13 248,00 €' },
+    ], subtotal: { ht: '11 040,00 €', tva: '2 208,00 €', ttc: '13 248,00 €' }
   },
 ];
-const pricingTotals = {
-  ht: '332 725,52 €',
-  tva: '66 545,11 €',
-  ttc: '399 270,63 €',
+
+// Fonction pour formater les prix sans séparateurs problématiques
+const formatPrice = (price: number): string => {
+  return price.toLocaleString('fr-FR', { minimumFractionDigits: 2 }).replace(/[\u202F\u00A0]/g, ' ') + ' €';
 };
-const honoraires = {
-  ht: '27 283,49 €',
-  tva: '5 456,70 €',
-  ttc: '32 740,19 €',
-};
-const totalGeneral = {
-  ht: '360 009,01 €',
-  tva: '72 001,81 €',
-  ttc: '432 010,82 €',
-};
-const potentiel = {
-  valeur: '1 563 820 €',
-  cout: '432 011 €',
-  plusValue: '1 131 809 €',
-  fiabilite: 'Très élevée (5/5)',
+
+// Fonction pour calculer les données selon la solution avec TVA correcte
+const getPdfData = (solution: 'coliving' | 'logements') => {
+  if (solution === 'logements') {
+    // Coûts variables pour solution 3 logements  
+    const electriciteHt = 30534;
+    const plomberieHt = 27945;
+    const pacHt = 20184;
+    const menuiseriesIntHt = 15600;
+    const cuisineHt = 16500;
+    const sanitairesHt = 14290;
+    
+    // TVA 5.5% : Amélioration énergétique
+    const amelioration55Ht = 16560 + 12420 + pacHt; // Isolation + Chauffage + PAC
+    
+    // TVA 10% : Rénovation
+    const renovation10Ht = 21738 + 23633 + 12766 + 23324 + 19666 + 15112 + 12006 + electriciteHt + plomberieHt;
+    
+    // TVA 20% : Équipements
+    const variables20Ht = menuiseriesIntHt + cuisineHt + sanitairesHt;
+    
+    const totalTravauxHt = amelioration55Ht + renovation10Ht + variables20Ht;
+    const tva55 = Math.round(amelioration55Ht * 0.055);
+    const tva10 = Math.round(renovation10Ht * 0.10);
+    const tva20 = Math.round(variables20Ht * 0.2);
+    const tvaTravauxHt = tva55 + tva10 + tva20;
+    const totalTravauxTtc = totalTravauxHt + tvaTravauxHt;
+    
+    const honorairesHt = 7095;
+    const honorairesTva = Math.round(honorairesHt * 0.2);
+    const honorairesTtc = honorairesHt + honorairesTva;
+    
+    const prime = -2500;
+    
+    const totalGeneralHt = totalTravauxHt + honorairesHt + prime;
+    const totalGeneralTva = tvaTravauxHt + honorairesTva;
+    const totalGeneralTtc = totalTravauxTtc + honorairesTtc + prime;
+    
+    const valeurImmobiliere = 471000;
+    const plusValue = valeurImmobiliere - totalGeneralTtc;
+    
+    return {
+      pricingTotals: {
+        ht: formatPrice(totalTravauxHt),
+        tva: formatPrice(tvaTravauxHt),
+        ttc: formatPrice(totalTravauxTtc),
+      },
+      honoraires: {
+        ht: formatPrice(honorairesHt),
+        tva: formatPrice(honorairesTva),
+        ttc: formatPrice(honorairesTtc),
+      },
+      totalGeneral: {
+        ht: formatPrice(totalGeneralHt),
+        tva: formatPrice(totalGeneralTva),
+        ttc: formatPrice(totalGeneralTtc),
+      },
+      potentiel: {
+        valeur: formatPrice(valeurImmobiliere),
+        cout: formatPrice(totalGeneralTtc),
+        plusValue: formatPrice(plusValue),
+        fiabilite: 'Élevée (4/5)',
+      }
+    };
+  } else {
+    // Solution coliving
+    const electriciteHt = 25876;
+    const plomberieHt = 20700;
+    const pacHt = 13456;
+    const menuiseriesIntHt = 10350;
+    const cuisineHt = 11730;
+    const sanitairesHt = 11040;
+    
+    // TVA 5.5% : Amélioration énergétique
+    const amelioration55Ht = 16560 + 12420 + pacHt; // Isolation + Chauffage + PAC
+    
+    // TVA 10% : Rénovation
+    const renovation10Ht = 21738 + 23633 + 12766 + 23324 + 19666 + 15112 + 12006 + electriciteHt + plomberieHt;
+    
+    // TVA 20% : Équipements
+    const variables20Ht = menuiseriesIntHt + cuisineHt + sanitairesHt;
+    
+    const totalTravauxHt = amelioration55Ht + renovation10Ht + variables20Ht;
+    const tva55 = Math.round(amelioration55Ht * 0.055);
+    const tva10 = Math.round(renovation10Ht * 0.10);
+    const tva20 = Math.round(variables20Ht * 0.2);
+    const tvaTravauxHt = tva55 + tva10 + tva20;
+    const totalTravauxTtc = totalTravauxHt + tvaTravauxHt;
+    
+    const honorairesHt = 7095;
+    const honorairesTva = Math.round(honorairesHt * 0.2);
+    const honorairesTtc = honorairesHt + honorairesTva;
+    
+    const prime = -2500;
+    
+    const totalGeneralHt = totalTravauxHt + honorairesHt + prime;
+    const totalGeneralTva = tvaTravauxHt + honorairesTva;
+    const totalGeneralTtc = totalTravauxTtc + honorairesTtc + prime;
+    
+    const valeurImmobiliere = 515000;
+    const plusValue = valeurImmobiliere - totalGeneralTtc;
+    
+    return {
+      pricingTotals: {
+        ht: formatPrice(totalTravauxHt),
+        tva: formatPrice(tvaTravauxHt),
+        ttc: formatPrice(totalTravauxTtc),
+      },
+      honoraires: {
+        ht: formatPrice(honorairesHt),
+        tva: formatPrice(honorairesTva),
+        ttc: formatPrice(honorairesTtc),
+      },
+      totalGeneral: {
+        ht: formatPrice(totalGeneralHt),
+        tva: formatPrice(totalGeneralTva),
+        ttc: formatPrice(totalGeneralTtc),
+      },
+      potentiel: {
+        valeur: formatPrice(valeurImmobiliere),
+        cout: formatPrice(totalGeneralTtc),
+        plusValue: formatPrice(plusValue),
+        fiabilite: 'Élevée (4/5)',
+      }
+    };
+  }
 };
 const services = [
-  { title: 'CONCEPTION', subtitle: '(Esquisse à Permis de Construire)', items: [
-    "Esquisse : Étude de faisabilité et premiers plans",
-    "Avant-projet sommaire (APS) : Définition des volumes et surfaces",
-    "Avant-projet définitif (APD) : Plans définitifs et choix techniques",
-    "Dossier de Permis de Construire : Constitution et dépôt du dossier"
+  { title: 'ÉTUDES PRÉALABLES AVP', subtitle: '(Phase actuelle)', items: [
+    "Diagnostic existant et relevés sur site",
+    "Étude de faisabilité des 2 solutions proposées",
+    "Estimation financière détaillée des travaux",
+    "Analyse du potentiel immobilier et rentabilité"
   ] },
-  { title: 'PRÉPARATION DES TRAVAUX', items: [
-    "Projet d'exécution : Plans techniques détaillés pour les entreprises",
-    "Assistance aux contrats de travaux : Aide à la consultation et sélection des entreprises",
-    "Établissement du planning général des travaux"
+  { title: 'AVANT-PROJET DÉFINITIF', subtitle: '(Phase suivante - Déverrouillage après choix solution)', items: [
+    "Plans d'exécution définitifs de la solution retenue",
+    "Dépôt autorisation copropriété et ABF",
+    "Finalisation du cahier des charges détaillé",
+    "Préparation dossier consultation entreprises"
   ] },
-  { title: 'SUIVI DE CHANTIER', items: [
-    "Direction d'exécution des travaux (DET) : Coordination et contrôle du chantier",
-    "Visites régulières : Vérification de la conformité aux plans",
-    "Réunions de chantier : Animation et compte-rendus",
-    "Validation des travaux : Contrôle qualité à chaque étape"
+  { title: 'CONSULTATION ENTREPRISES', subtitle: '(DCE - Septembre 2025)', items: [
+    "Édition cahiers des charges par corps d'état",
+    "Consultation et analyse des offres entreprises",
+    "Négociation et calage technique des prix",
+    "Attribution des marchés et préparation chantier"
   ] },
-  { title: 'LIVRAISON', items: [
-    "Opérations préalables à la réception (OPR) : Vérifications finales",
-    "Assistance à la réception des travaux : Accompagnement lors de la livraison",
-    "Levée des réserves : Suivi jusqu'à parfait achèvement",
-    "Remise de la documentation : Dossier des ouvrages exécutés (DOE)"
+  { title: 'SUIVI DE CHANTIER', subtitle: '(Octobre 2025 - Avril 2026)', items: [
+    "Direction d'exécution des travaux (DET)",
+    "Coordination des entreprises et planning",
+    "Contrôle qualité et conformité aux plans",
+    "Réception des travaux et levée des réserves",
+    "⚠️ Note : Cette prestation sera incluse dans l'offre d'ACTIV TRAVAUX"
   ] },
 ];
 const studies = [
-  { name: "Étude de sol G1 et G2", cost: "2 500 à 4 000 €", provider: "Bureau d'études géotechniques agréé (terrain argileux)" },
-  { name: "Étude thermique RE2020", cost: "800 à 1 500 €", provider: "Bureau d'études thermiques certifié" },
-  { name: "Test de perméabilité", cost: "300 à 500 €", provider: "Organisme agréé" },
+  { name: "Diagnostic structurel", cost: "1 500 à 2 500 €", provider: "Bureau d'études structure agréé" },
+  { name: "Diagnostic amiante/plomb", cost: "500 à 800 €", provider: "Diagnostiqueur certifié" },
   { name: "Contrôle Consuel", cost: "150 à 200 €", provider: "Consuel (sécurité électrique)" },
 ];
 const insurances = [
-  { name: "Assurance Dommage-Ouvrage", cost: "3 500 à 5 000 €", period: "À souscrire avant ouverture du chantier" },
+  { name: "Assurance Dommage-Ouvrage", cost: "2 500 à 4 000 €", period: "À souscrire avant ouverture du chantier" },
+  { name: "DROC (Déclaration d'ouverture de chantier)", cost: "Gratuit", period: "À déposer en mairie avant démarrage" },
 ];
 const exclusions = [
-  "Aménagement paysager complet (seul aménagement de base inclus)",
-  "Clôtures additionnelles (portail standard inclus)",
-  "Raccordements aux réseaux (si éloignés)",
-  "Taxes d'aménagement et archéologique",
-  "Taxe foncière",
-  "Études géotechniques complémentaires si sol complexe"
+  "Autorisation de copropriété (menuiseries et groupe climatisation)",
+  "Occupation du domaine public pour travaux",
+  "Études complémentaires si découvertes imprévues",
+  "Prestations non mentionnées à la présente estimation"
 ];
 const phases = [
-  { name: "Études et permis de construire", duration: "3-4 mois", start: "À partir de la signature" },
-  { name: "Instruction du permis", duration: "2-3 mois", start: "Dépôt en mairie" },
-  { name: "Préparation des travaux", duration: "1 mois", start: "Après obtention PC" },
-  { name: "Travaux de construction", duration: "10-12 mois", start: "Selon planning détaillé" },
+  { name: "Choix solution et validation client", duration: "1 semaine", start: "31 juillet 2025" },
+  { name: "Plans définitifs + autorisations urbanisme", duration: "3 semaines", start: "15 août 2025" },
+  { name: "Consultation des entreprises", duration: "3 semaines", start: "Début septembre 2025" },
+  { name: "Validation offres + démarrage travaux", duration: "2 semaines", start: "15 octobre 2025" },
+  { name: "Travaux de rénovation", duration: "6,5 mois", start: "Octobre 2025 - Avril 2026" },
 ];
 const clarifications = [
-  { title: "Urbanisme et réglementations", items: [
-    "Validation de l'emprise au sol autorisée selon le PLU du Lavandou",
-    "Vérification des prescriptions architecturales locales",
-    "Contraintes liées à la proximité de la mer (Plan de Prévention des Risques)"
+  { title: "Autorisations et démarches", items: [
+    "Autorisation de copropriété pour menuiseries et groupe climatisation",
+    "Dossier DP menuiseries (Déclaration Préalable)",
+    "Consultation de l'ABF (Architecte des Bâtiments de France)",
+    "Déclaration d'ouverture de chantier (DROC) en mairie",
+    "Occupation du domaine public ou de la cour copropriété"
   ] },
-  { title: "Terrain et contraintes techniques", items: [
-    "Étude géotechnique approfondie nécessaire (terrain argileux pentu)",
-    "Stabilité des sols et fondations adaptées",
-    "Gestion des eaux pluviales sur terrain pentu",
-    "Accessibilité du chantier"
+  { title: "Coordination avec la copropriété", items: [
+    "Travaux de toiture de la copropriété (phasage à définir)",
+    "Protection temporaire durant les travaux copropriété",
+    "Attention aux nuisances sonores du groupe climatisation",
+    "Accès et stockage matériaux dans les parties communes"
   ] },
-  { title: "Viabilisation", items: [
-    "Distance des arrivées électricité et télécom",
-    "Coût des raccordements si éloignés de la parcelle",
-    "Évacuation des eaux usées et pluviales"
+  { title: "Aspects techniques spécifiques", items: [
+    "Bureau d'études pour plan de démolition et phasage",
+    "Mise en sécurité de l'ouvrage pendant la démolition",
+    "Vérification des branchements EP et EU sur réseau public",
+    "Coordination importante entre les différents corps de métier"
   ] },
 ];
 const guarantees = [
@@ -213,18 +331,6 @@ const guarantees = [
   "Garantie décennale maîtrise d'œuvre",
   "Suivi jusqu'au parfait achèvement",
   "Assistance pendant la période de garantie"
-];
-const nextSteps = [
-  "Validation de cette proposition par vos soins",
-  "Signature du contrat de maîtrise d'œuvre",
-  "Lancement des études préliminaires",
-  "Sécurisation du terrain (compromis de vente)",
-  "Démarrage des études de sol et thermiques (prioritaire - terrain argileux)"
-];
-const conditions = [
-  { label: "Validité de l'offre", value: "30 jours" },
-  { label: "Accompte au démarrage", value: "20% = 6 548,04 € TTC" },
-  { label: "Révision des prix", value: "Forfaitaire (pas de révision)" },
 ];
 
 const styles = StyleSheet.create({
@@ -266,7 +372,7 @@ const LotIcon = ({ icon }) => <Text style={{ fontSize: 12, marginRight: 4 }}>{ic
 
 const FooterBar = () => (
   <View style={styles.footerBar} fixed>
-    <Text style={styles.footerBarText}>Contact : progineer.moe@gmail.com | 07 83 76 21 56 | www.progineer.fr</Text>
+    <Text style={styles.footerBarText}>Contact : progineer.moe@gmail.com | 07 83 76 21 56 | www.progineer.fr | SIRET : 93518578500018</Text>
   </View>
 );
 
@@ -274,19 +380,23 @@ const PageNumber = () => (
   <Text style={styles.pageNumber} fixed render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
 );
 
-const PdfDocument = () => (
+const PdfDocument: React.FC<PdfDocumentProps> = ({ solution = 'coliving' }) => {
+  const { pricingTotals, honoraires, totalGeneral, potentiel } = getPdfData(solution);
+  
+  return (
   <Document>
     {/* Page de garde raffinée avec logo */}
     <Page size="A4" style={styles.page}>
       <View style={styles.cover}>
         {/* Logo centré, ratio respecté, plus grand, plus haut */}
         <Image src="/Diapositive10-removebg-preview.png" style={styles.coverLogo} />
-        <Text style={styles.coverTitle}>PROPOSITION COMMERCIALE</Text>
-        <Text style={styles.coverSubtitle}>Construction neuve individuelle</Text>
+        <Text style={styles.coverTitle}>AVANT-PROJET</Text>
+        <Text style={styles.coverSubtitle}>Avant-Projet Détaillé</Text>
         <View style={styles.coverSeparator} />
-        <Text style={styles.coverClient}>Clients : Monsieur et Madame LANDY</Text>
-        <Text style={styles.coverClient}>Localisation : Le Lavandou (83980)</Text>
-        <Text style={styles.coverDate}>Date : 21 juillet 2025</Text>
+        <Text style={styles.coverClient}>Client : Pierre Lauzier</Text>
+        <Text style={styles.coverClient}>Localisation : 31C rue Curiol, Marseille 13001</Text>
+        <Text style={styles.coverClient}>Solution : {solution === 'coliving' ? 'Coliving 4-5 chambres' : '3 Logements indépendants'}</Text>
+        <Text style={styles.coverDate}>Date : 24 juillet 2025</Text>
         <View style={{ alignSelf: 'center', width: '100%' }}>
           <Text style={styles.coverProgineer}>PROGINEER</Text>
           <Text style={styles.coverMetier}>Architecture & Maîtrise d'Œuvre</Text>
@@ -308,9 +418,9 @@ const PdfDocument = () => (
         ))}
         <View style={styles.divider} />
         <Text style={styles.subtitle}>Distribution</Text>
-        <Text>Rez-de-chaussée : Entrée, 3 chambres, 1 bureau, salle de bain, salle d'eau, WC, placards</Text>
-        <Text>Étage : Salon/salle à manger, cuisine ouverte, suite parentale, salle d'eau, WC, cellier, terrasse</Text>
-        <Text>Extérieurs : Piscine 32 m², terrasse, parking</Text>
+        <Text>Solution 1 - Coliving : 4-5 chambres réparties sur 3 niveaux avec espaces communs</Text>
+        <Text>Solution 2 - 3 logements : 1 logement par niveau, chacun avec cuisine et salle d'eau</Text>
+        <Text>Surface habitable totale : 150 m² à rénover complètement</Text>
         <View style={styles.divider} />
         <Text style={styles.subtitle}>Prestations techniques</Text>
         {technical.map((item, i) => (
@@ -321,7 +431,7 @@ const PdfDocument = () => (
       <View break />
       {/* Détail financier */}
       <View style={styles.section} wrap={false}>
-        <Text style={styles.title}>Proposition financière détaillée</Text>
+        <Text style={styles.title}>ESTIMATION FINANCIÈRE DÉTAILLÉE</Text>
         <View style={styles.tableHeader}>
           <Text style={[styles.cell, { flex: 2 }]}></Text>
           <Text style={styles.cellEuro}>HT (€)</Text>
@@ -385,16 +495,34 @@ const PdfDocument = () => (
       <View style={styles.section} wrap={false}>
         <Text style={styles.title}>Récapitulatif général</Text>
         <View style={styles.tableHeader}>
-          <Text style={[styles.cell, { flex: 2 }]}>TOTAL GÉNÉRAL</Text>
+          <Text style={[styles.cell, { flex: 2 }]}></Text>
           <Text style={styles.cellEuro}>HT (€)</Text>
           <Text style={styles.cellEuro}>TVA (€)</Text>
           <Text style={styles.cellEuro}>TTC (€)</Text>
         </View>
         <View style={styles.tableRow}>
-          <Text style={[styles.cell, { flex: 2 }]}>TOTAL</Text>
-          <Text style={styles.cellEuro}>{totalGeneral.ht}</Text>
-          <Text style={styles.cellEuro}>{totalGeneral.tva}</Text>
-          <Text style={styles.cellEuro}>{totalGeneral.ttc}</Text>
+          <Text style={[styles.cell, { flex: 2 }]}>COÛT DES TRAVAUX RÉNOVATION</Text>
+          <Text style={styles.cellEuro}>{pricingTotals.ht}</Text>
+          <Text style={styles.cellEuro}>{pricingTotals.tva}</Text>
+          <Text style={styles.cellEuro}>{pricingTotals.ttc}</Text>
+        </View>
+        <View style={styles.tableRow}>
+          <Text style={[styles.cell, { flex: 2 }]}>HONORAIRES MAÎTRISE D'ŒUVRE</Text>
+          <Text style={styles.cellEuro}>{honoraires.ht}</Text>
+          <Text style={styles.cellEuro}>{honoraires.tva}</Text>
+          <Text style={styles.cellEuro}>{honoraires.ttc}</Text>
+        </View>
+        <View style={[styles.tableRow, { backgroundColor: '#f0f9ff' }]}>
+          <Text style={[styles.cell, { flex: 2 }]}>POTENTIEL PRIME CEE</Text>
+          <Text style={[styles.cellEuro, { color: '#10b981' }]}>{'-2 500,00 €'}</Text>
+          <Text style={styles.cellEuro}>{'0,00 €'}</Text>
+          <Text style={[styles.cellEuro, { color: '#10b981' }]}>{'-2 500,00 €'}</Text>
+        </View>
+        <View style={[styles.tableRow, { backgroundColor: '#f8ecd7', fontWeight: 'bold' }]}>
+          <Text style={[styles.cell, { flex: 2, fontWeight: 'bold', color: '#c1a16a' }]}>TOTAL GÉNÉRAL</Text>
+          <Text style={[styles.cellEuro, { fontWeight: 'bold', color: '#c1a16a' }]}>{totalGeneral.ht}</Text>
+          <Text style={[styles.cellEuro, { fontWeight: 'bold', color: '#c1a16a' }]}>{totalGeneral.tva}</Text>
+          <Text style={[styles.cellEuro, { fontWeight: 'bold', color: '#c1a16a' }]}>{totalGeneral.ttc}</Text>
         </View>
       </View>
       {/* Potentiel immobilier */}
@@ -402,15 +530,15 @@ const PdfDocument = () => (
         <Text style={styles.title}>Plus-value potentielle</Text>
         <View style={{ flexDirection: 'row', marginBottom: 8 }}>
           <Text style={{ fontSize: 10, flex: 2 }}>Valeur estimée terminée :</Text>
-          <Text style={{ fontSize: 10, flex: 1, textAlign: 'right', fontWeight: 'bold' }}>1 563 820 €</Text>
+          <Text style={{ fontSize: 10, flex: 1, textAlign: 'right', fontWeight: 'bold' }}>{potentiel.valeur}</Text>
         </View>
         <View style={{ flexDirection: 'row', marginBottom: 8 }}>
           <Text style={{ fontSize: 10, flex: 2 }}>Coût total projet :</Text>
-          <Text style={{ fontSize: 10, flex: 1, textAlign: 'right', fontWeight: 'bold' }}>432 011 €</Text>
+          <Text style={{ fontSize: 10, flex: 1, textAlign: 'right', fontWeight: 'bold' }}>{potentiel.cout}</Text>
         </View>
         <View style={{ flexDirection: 'row', marginBottom: 8 }}>
           <Text style={{ fontSize: 10, flex: 2 }}>Plus-value brute :</Text>
-          <Text style={{ fontSize: 10, flex: 1, textAlign: 'right', fontWeight: 'bold', color: '#c1a16a' }}>1 131 809 €</Text>
+          <Text style={{ fontSize: 10, flex: 1, textAlign: 'right', fontWeight: 'bold', color: '#c1a16a' }}>{potentiel.plusValue}</Text>
         </View>
         <Text style={{ fontSize: 9, color: '#787346', marginTop: 2 }}>(Hors coût terrain et frais annexes)</Text>
       </View>
@@ -480,9 +608,9 @@ const PdfDocument = () => (
         ))}
         {/* Total planning */}
         <View style={[styles.tableRow, { backgroundColor: '#f3f4f6', fontWeight: 'bold' }]}>
-          <Text style={{ flex: 2, fontWeight: 'bold' }}>Total</Text>
-          <Text style={{ fontWeight: 'bold' }}>16-20 mois</Text>
-          <Text style={{ fontWeight: 'bold' }}>De la signature à la livraison</Text>
+          <Text style={{ flex: 2, fontWeight: 'bold' }}>DÉLAI TOTAL</Text>
+          <Text style={{ fontWeight: 'bold' }}>9 mois</Text>
+          <Text style={{ fontWeight: 'bold' }}>Juillet 2025 - Avril 2026</Text>
         </View>
         <Text style={styles.subtitleSpaced}>Points à clarifier</Text>
         {clarifications.map((section, i) => (
@@ -501,24 +629,9 @@ const PdfDocument = () => (
         {guarantees.map((item, i) => (
           <Text key={i}>• {item}</Text>
         ))}
-        <Text style={styles.subtitleSpaced}>Prochaines étapes</Text>
-        {nextSteps.map((item, i) => (
-          <Text key={i}>{i + 1}. {item}</Text>
-        ))}
-        {/* Conditions */}
-        <Text style={styles.subtitleSpaced}>Conditions</Text>
-        {conditions.map((item, i) => (
-          item.label === "Accompte au démarrage" ? (
-            <Text key={i} style={{ color: '#c1a16a', fontWeight: 'bold', marginBottom: 4 }}>
-              {item.label} : {item.value}
-            </Text>
-          ) : (
-            <Text key={i}>{item.label} : {item.value}</Text>
-          )
-        ))}
         <View style={styles.divider} />
         <Text style={{ textAlign: 'center', color: '#787346', marginTop: 6 }}>
-          Cette proposition est établie sur la base des éléments transmis et reste soumise à la validation des contraintes techniques et réglementaires, notamment liées à la nature argileuse et pentue du terrain.
+          Cette proposition est établie sur la base des éléments transmis et reste soumise à la validation des contraintes techniques et réglementaires de rénovation, notamment les autorisations de copropriété et les démarches administratives.
         </Text>
         <Text style={{ textAlign: 'center', color: '#787346', marginTop: 6 }}>
           PROGINEER - Votre partenaire pour un projet réussi
@@ -528,6 +641,7 @@ const PdfDocument = () => (
       <PageNumber />
     </Page>
   </Document>
-);
+  );
+};
 
 export default PdfDocument; 
