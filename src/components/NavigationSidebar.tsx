@@ -14,47 +14,55 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({ isDesktopMode = f
     { id: 'solutions', label: 'Solutions Proposées', labelMobile: 'Solutions', icon: Home },
     { id: 'pricing', label: 'Coût des travaux', labelMobile: 'Coûts', icon: Calculator },
     { id: 'services', label: 'Maîtrise d\'œuvre', labelMobile: 'Services', icon: Wrench },
+    { id: 'total', label: 'Récapitulatif', labelMobile: 'Total', icon: DollarSign },
     { id: 'documents', label: 'Plans & Documents', labelMobile: 'Documents', icon: FolderOpen },
     { id: 'potential', label: 'Potentiel Immobilier', labelMobile: 'Potentiel', icon: TrendingUp },
-    { id: 'total', label: 'Récapitulatif', labelMobile: 'Total', icon: DollarSign },
     { id: 'exclusions', label: 'Exclusions', labelMobile: 'Exclusions', icon: AlertTriangle },
     { id: 'timeline', label: 'Planning AVP', labelMobile: 'Planning', icon: Clock },
     { id: 'footer', label: 'Collaboration', labelMobile: 'Collaboration', icon: Handshake }
   ];
 
   useEffect(() => {
+    let ticking = false;
+    
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      let currentSection = 'project-summary';
-      
-      // Chercher toutes les sections disponibles
-      const sectionElements = [
-        { id: 'project-summary', element: document.querySelector('[data-section="project-summary"]') },
-        { id: 'solutions', element: document.querySelector('[data-section="solutions"]') },
-        { id: 'pricing', element: document.querySelector('[data-section="pricing"]') },
-        { id: 'services', element: document.querySelector('[data-section="services"]') },
-        { id: 'documents', element: document.querySelector('[data-section="documents"]') },
-        { id: 'potential', element: document.querySelector('[data-section="potential"]') },
-        { id: 'total', element: document.querySelector('[data-section="total"]') },
-        { id: 'exclusions', element: document.querySelector('[data-section="exclusions"]') },
-        { id: 'timeline', element: document.querySelector('[data-section="timeline"]') },
-        { id: 'footer', element: document.querySelector('footer') }
-      ].filter(section => section.element !== null);
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const scrollY = window.scrollY;
+          let currentSection = 'project-summary';
+          
+          // Chercher toutes les sections disponibles (cache des éléments)
+          const sectionElements = [
+            { id: 'project-summary', element: document.querySelector('[data-section="project-summary"]') },
+            { id: 'solutions', element: document.querySelector('[data-section="solutions"]') },
+            { id: 'pricing', element: document.querySelector('[data-section="pricing"]') },
+            { id: 'services', element: document.querySelector('[data-section="services"]') },
+            { id: 'total', element: document.querySelector('[data-section="total"]') },
+            { id: 'documents', element: document.querySelector('[data-section="documents"]') },
+            { id: 'potential', element: document.querySelector('[data-section="potential"]') },
+            { id: 'exclusions', element: document.querySelector('[data-section="exclusions"]') },
+            { id: 'timeline', element: document.querySelector('[data-section="timeline"]') },
+            { id: 'footer', element: document.querySelector('footer') }
+          ].filter(section => section.element !== null);
 
-      // Trouver la section actuellement visible
-      for (let i = sectionElements.length - 1; i >= 0; i--) {
-        const section = sectionElements[i];
-        if (section.element) {
-          const rect = section.element.getBoundingClientRect();
-          // Une section est active si son top est visible ou si on a dépassé son milieu
-          if (rect.top <= window.innerHeight / 2) {
-            currentSection = section.id;
-            break;
+          // Trouver la section actuellement visible avec une détection plus précise
+          for (let i = sectionElements.length - 1; i >= 0; i--) {
+            const section = sectionElements[i];
+            if (section.element) {
+              const rect = section.element.getBoundingClientRect();
+              // Une section est active si son top est dans le tiers supérieur de l'écran
+              if (rect.top <= window.innerHeight * 0.3) {
+                currentSection = section.id;
+                break;
+              }
+            }
           }
-        }
+          
+          setActiveSection(currentSection);
+          ticking = false;
+        });
+        ticking = true;
       }
-      
-      setActiveSection(currentSection);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -80,9 +88,9 @@ const NavigationSidebar: React.FC<NavigationSidebarProps> = ({ isDesktopMode = f
       'solutions': '[data-section="solutions"]',
       'pricing': '[data-section="pricing"]',
       'services': '[data-section="services"]',
+      'total': '[data-section="total"]',
       'documents': '[data-section="documents"]',
       'potential': '[data-section="potential"]',
-      'total': '[data-section="total"]',
       'exclusions': '[data-section="exclusions"]',
       'timeline': '[data-section="timeline"]',
       'footer': 'footer'

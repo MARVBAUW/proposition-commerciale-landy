@@ -46,22 +46,20 @@ const DocumentsSection: React.FC<DocumentsSectionProps> = ({ currentSolution = '
       name: 'Solution Coliving complète',
       type: 'Proposition',
       description: 'Aménagement coliving 4-5 chambres sur 3 niveaux',
-      url: '/plans/coliving-complet.pdf',
+      url: '/PDF/Plans colliving.pdf',
       category: 'coliving',
       icon: Users,
-      status: 'en_cours',
-      statusLabel: 'en cours d\'élaboration'
+      status: 'disponible'
     },
     {
       id: 'logements-complet',
       name: '3 Logements indépendants',
       type: 'Réversibilité',
       description: 'Plans complets pour 3 logements distincts (1 par niveau)',
-      url: '/plans/logements-complet.pdf',
+      url: '/PDF/Plans 3 appartements.pdf',
       category: 'logements',
       icon: Building,
-      status: 'en_cours',
-      statusLabel: 'en cours d\'élaboration'
+      status: 'disponible'
     },
     {
       id: 'devis-signe',

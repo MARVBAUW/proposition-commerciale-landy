@@ -4,6 +4,7 @@ import ProjectSummary from './components/ProjectSummary';
 import PricingBreakdown from './components/PricingBreakdown';
 import Services from './components/Services';
 import TotalSummary from './components/TotalSummary';
+import PotentialSummary from './components/PotentialSummary';
 import Exclusions from './components/Exclusions';
 import Timeline from './components/Timeline';
 import NavigationSidebar from './components/NavigationSidebar';
@@ -145,6 +146,9 @@ function App() {
         </div>
         <div data-section="documents">
           <DocumentsSection currentSolution={currentSolution} />
+        </div>
+        <div data-section="potential">
+          <PotentialSummary solution={currentSolution} />
         </div>
         <div data-section="exclusions">
           <Exclusions />

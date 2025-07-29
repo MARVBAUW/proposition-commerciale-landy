@@ -3,6 +3,7 @@ import { MapPin, Calendar, Download, HelpCircle, GitCompare, Users, Building } f
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import PdfDocument from './PdfDocument';
 import PdfDocumentDual from './PdfDocumentDual';
+import MergedPdfDownloadLink from './MergedPdfDownloadLink';
 
 interface HeaderProps {
   isDesktopMode?: boolean;
@@ -196,10 +197,10 @@ const Header: React.FC<HeaderProps> = ({ isDesktopMode = false, solution = 'coli
               )}
             </PDFDownloadLink>
 
-            {/* Boutons PDF des deux solutions */}
-            <PDFDownloadLink
-              document={<PdfDocument solution="coliving" />}
-              fileName="Solution_Coliving_Pierre_Lauzier.pdf"
+            {/* Boutons PDF des deux solutions avec plans intégrés */}
+            <MergedPdfDownloadLink
+              solution="coliving"
+              fileName="Solution_Coliving_avec_Plans_Pierre_Lauzier.pdf"
               className="flex items-center gap-1 px-2 py-1 bg-[#787346] text-white rounded text-xs font-medium hover:bg-[#6b6b3d] transition-colors whitespace-nowrap"
             >
               {({ loading }) => (
@@ -209,11 +210,11 @@ const Header: React.FC<HeaderProps> = ({ isDesktopMode = false, solution = 'coli
                   <span className="lg:hidden">Co</span>
                 </>
               )}
-            </PDFDownloadLink>
+            </MergedPdfDownloadLink>
             
-            <PDFDownloadLink
-              document={<PdfDocument solution="logements" />}
-              fileName="Solution_3_Logements_Pierre_Lauzier.pdf"
+            <MergedPdfDownloadLink
+              solution="logements"
+              fileName="Solution_3_Logements_avec_Plans_Pierre_Lauzier.pdf"
               className="flex items-center gap-1 px-2 py-1 bg-[#059669] text-white rounded text-xs font-medium hover:bg-[#047857] transition-colors whitespace-nowrap"
             >
               {({ loading }) => (
@@ -223,7 +224,7 @@ const Header: React.FC<HeaderProps> = ({ isDesktopMode = false, solution = 'coli
                   <span className="lg:hidden">3L</span>
                 </>
               )}
-            </PDFDownloadLink>
+            </MergedPdfDownloadLink>
           </div>
         </div>
       </div>
@@ -275,9 +276,9 @@ const Header: React.FC<HeaderProps> = ({ isDesktopMode = false, solution = 'coli
           )}
         </PDFDownloadLink>
         
-        <PDFDownloadLink
-          document={<PdfDocument solution="coliving" />}
-          fileName="Solution_Coliving_Pierre_Lauzier.pdf"
+        <MergedPdfDownloadLink
+          solution="coliving"
+          fileName="Solution_Coliving_avec_Plans_Pierre_Lauzier.pdf"
           className={`flex items-center gap-1 bg-gray-500 text-white rounded font-medium hover:bg-gray-600 transition-colors whitespace-nowrap ${
             isMobile ? 'px-1 py-1 text-xs' : 'px-2 py-1 text-xs'
           }`}
@@ -288,11 +289,11 @@ const Header: React.FC<HeaderProps> = ({ isDesktopMode = false, solution = 'coli
               <span className="hidden lg:inline">{loading ? '...' : 'Co'}</span>
             </>
           )}
-        </PDFDownloadLink>
+        </MergedPdfDownloadLink>
         
-        <PDFDownloadLink
-          document={<PdfDocument solution="logements" />}
-          fileName="Solution_3_Logements_Pierre_Lauzier.pdf"
+        <MergedPdfDownloadLink
+          solution="logements"
+          fileName="Solution_3_Logements_avec_Plans_Pierre_Lauzier.pdf"
           className={`flex items-center gap-1 bg-gray-500 text-white rounded font-medium hover:bg-gray-600 transition-colors whitespace-nowrap ${
             isMobile ? 'px-1 py-1 text-xs' : 'px-2 py-1 text-xs'
           }`}
@@ -303,7 +304,7 @@ const Header: React.FC<HeaderProps> = ({ isDesktopMode = false, solution = 'coli
               <span className="hidden lg:inline">{loading ? '...' : '3L'}</span>
             </>
           )}
-        </PDFDownloadLink>
+        </MergedPdfDownloadLink>
       </div>
     </>
   );
