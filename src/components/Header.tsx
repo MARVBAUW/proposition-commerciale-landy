@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, Calendar, Download } from 'lucide-react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import PdfDocument from './PdfDocument';
+import NotificationBell from './NotificationBell';
 
 interface HeaderProps {
   isDesktopMode?: boolean;
@@ -202,6 +203,11 @@ const Header: React.FC<HeaderProps> = ({ isDesktopMode = false }) => {
           alt="PROGINEER" 
           className="h-16 w-auto" 
         />
+      </div>
+      
+      {/* Cloche de notifications fixe - responsive positioning */}
+      <div className="fixed top-4 z-[10050] left-1/2 transform -translate-x-1/2 translate-y-20 sm:translate-y-0 sm:translate-x-20">
+        <NotificationBell />
       </div>
     </>
   );

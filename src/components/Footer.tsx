@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Phone, FileText, CheckCircle } from 'lucide-react';
+import { Shield, Phone, FileText, CheckCircle, Lock, AlertCircle } from 'lucide-react';
 
 const Footer: React.FC = () => {
   const guarantees = [
@@ -73,6 +73,44 @@ const Footer: React.FC = () => {
               <div>
                 <div className="text-sm text-gray-500 mb-1">Révision des prix</div>
                 <div className="text-gray-900 font-semibold">Forfaitaire (pas de révision)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Zone CONCEPTION verrouillée */}
+        <div className="mt-12 mb-8">
+          <div className="bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg p-8 border-2 border-gray-400 opacity-75">
+            <div className="text-center">
+              <div className="flex justify-center items-center mb-4">
+                <Lock className="w-8 h-8 text-gray-600 mr-3" />
+                <h3 className="text-2xl font-bold text-gray-600">SECTION CONCEPTION</h3>
+              </div>
+              
+              <div className="flex justify-center items-center mb-4">
+                <AlertCircle className="w-5 h-5 text-amber-600 mr-2" />
+                <p className="text-gray-700 font-medium">Section verrouillée - Déverrouillage après signature et validation de l'offre</p>
+              </div>
+              
+              <div className="text-gray-600 max-w-3xl mx-auto">
+                <p className="mb-3">
+                  Cette section contiendra les prestations incluses dans nos honoraires de maîtrise d'œuvre :
+                </p>
+                <div className="text-center max-w-2xl mx-auto">
+                  <div className="text-left">
+                    <strong>CONCEPTION (Esquisse à Permis de Construire)</strong><br/>
+                    • Esquisse : Étude de faisabilité et premiers plans (2-3 semaines)<br/>
+                    • Avant-projet sommaire (APS) : Définition des volumes et surfaces (2-3 semaines)<br/>
+                    • Avant-projet définitif (APD) : Plans définitifs et choix techniques (4-6 semaines)<br/>
+                    • Dossier de Permis de Construire : Constitution et dépôt du dossier (2 semaines)<br/>
+                    • Établissement du planning général des travaux
+                  </div>
+                </div>
+                <div className="mt-4 p-3 bg-amber-100 rounded-lg border border-amber-300">
+                  <p className="text-amber-800 text-sm font-medium">
+                    📋 Déverrouillage prévu : Après signature et validation de l'offre
+                  </p>
+                </div>
               </div>
             </div>
           </div>

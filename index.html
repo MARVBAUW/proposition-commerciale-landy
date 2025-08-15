@@ -2,10 +2,35 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/png" href="/Diapositive7.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PROGINEER - Proposition Commerciale</title>
+    <title>PROGINEER - Proposition Commerciale Landy</title>
     <meta name="description" content="Proposition commerciale pour construction neuve individuelle - PROGINEER Architecture & Maîtrise d'Œuvre">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#c1a16a" />
+    
+    <!-- Apple PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="PROGINEER Landy" />
+    <link rel="apple-touch-icon" href="/Diapositive10-removebg-preview.png" />
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('Service Worker registered: ', registration);
+            })
+            .catch((registrationError) => {
+              console.log('Service Worker registration failed: ', registrationError);
+            });
+        });
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

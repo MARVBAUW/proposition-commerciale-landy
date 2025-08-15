@@ -83,6 +83,14 @@ const Exclusions: React.FC = () => {
               </table>
             </div>
             <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+              <div className="mb-3">
+                <p className="text-sm font-semibold mb-2" style={{ color: '#787346' }}>💼 Contact recommandé - Assurance Dommage-Ouvrage :</p>
+                <div className="bg-white p-3 rounded border border-gray-200">
+                  <p className="text-sm text-gray-700 font-medium">Nicolas CHERON</p>
+                  <p className="text-sm font-mono" style={{ color: '#c1a16a' }}>📞 06 37 24 52 79</p>
+                  <p className="text-xs text-gray-500 mt-1">Partenaire PROGINEER - Devis sur demande</p>
+                </div>
+              </div>
               <p className="text-sm text-gray-600">
                 Les entreprises sont couvertes par leur garantie décennale et garantie parfait achèvement.
               </p>

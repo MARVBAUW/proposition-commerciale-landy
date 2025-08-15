@@ -1,0 +1,28 @@
+{
+  "name": "PROGINEER - Proposition Commerciale LANDY",
+  "short_name": "PROGINEER Landy",
+  "description": "Proposition commerciale construction neuve M. et Mme LANDY - PROGINEER Architecture & Maîtrise d'Œuvre",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#c1a16a",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/Diapositive10-removebg-preview.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/Diapositive13-removebg-preview.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "lang": "fr",
+  "dir": "ltr"
+}

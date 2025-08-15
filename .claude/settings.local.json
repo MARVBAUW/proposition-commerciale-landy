@@ -10,7 +10,17 @@
       "Bash(netlify sites:create:*)",
       "Bash(netlify:*)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(gh repo create:*)",
+      "Bash(gh auth:*)",
+      "Bash(winget install:*)",
+      "Bash(curl:*)",
+      "Bash(unzip:*)",
+      "Bash(./bin/gh.exe:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(git clone:*)"
     ],
     "deny": []
   }

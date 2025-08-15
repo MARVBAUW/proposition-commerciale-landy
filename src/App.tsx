@@ -6,7 +6,10 @@ import Services from './components/Services';
 import TotalSummary from './components/TotalSummary';
 import Exclusions from './components/Exclusions';
 import Timeline from './components/Timeline';
+import DocumentsSection from './components/DocumentsSection';
 import NavigationSidebar from './components/NavigationSidebar';
+import InstallPrompt from './components/InstallPrompt';
+import TutorialPopup from './components/TutorialPopup';
 import Footer from './components/Footer';
 import { Monitor, Smartphone } from 'lucide-react';
 // Stagewise imports - Commented out for now due to plugin issues
@@ -16,24 +19,36 @@ import { Monitor, Smartphone } from 'lucide-react';
 function App() {
   const [isDesktopMode, setIsDesktopMode] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
 
   useEffect(() => {
-    // Détecter si on est vraiment sur un device mobile
-    const checkRealMobile = () => {
-      // Utiliser la taille réelle de l'écran, pas le viewport
+    // Détecter si on est sur un device mobile ou une fenêtre étroite
+    const checkMobile = () => {
       const realScreenWidth = window.screen.width;
+      const viewportWidth = window.innerWidth;
       const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
       const userAgent = navigator.userAgent.toLowerCase();
       const isMobileUA = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
       
-      // Considérer comme mobile SEULEMENT si:
-      // - Écran réel < 768px ET device tactile ET user agent mobile
-      const isRealMobile = realScreenWidth < 768 && isTouchDevice && isMobileUA;
-      setIsMobile(isRealMobile);
+      // Afficher le bouton si :
+      // - Device mobile réel OU viewport étroit avec tactile OU viewport très étroit (dev/test)
+      const showMobileToggle = (realScreenWidth < 768 && isTouchDevice && isMobileUA) || 
+                              (viewportWidth < 768 && isTouchDevice) ||
+                              (viewportWidth < 640); // Forcer sur très petits écrans
+      setIsMobile(showMobileToggle);
     };
     
-    checkRealMobile();
-    // Pas besoin d'écouter resize car on détecte le device physique
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    // Vérifier si le tutoriel doit être affiché
+    const tutorialSeen = localStorage.getItem('progineer-landy-tutorial-seen');
+    if (!tutorialSeen) {
+      // Afficher le tutoriel après un court délai pour laisser la page se charger
+      setTimeout(() => setShowTutorial(true), 1000);
+    }
+    
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const toggleDesktopMode = () => {
@@ -65,8 +80,8 @@ function App() {
         <StagewiseToolbar config={{ plugins: [ReactPlugin()] }} />
       )} */}
       
-      {/* Bouton de basculement mode desktop/mobile - visible uniquement sur VRAIS mobiles */}
-      {isMobile && window.screen && window.screen.width < 768 && (
+      {/* Bouton de basculement mode desktop/mobile - visible sur mobiles et tablettes */}
+      {isMobile && (
         <div 
           id="toggle-button-container"
           style={{
@@ -127,6 +142,9 @@ function App() {
         </div>
         <div data-section="timeline">
           <Timeline />
+        </div>
+        <div data-section="documents">
+          <DocumentsSection />
         </div>
         <Footer />
       </div>
@@ -210,6 +228,17 @@ function App() {
             .force-desktop .text-3xl { font-size: 1.875rem !important; line-height: 2.25rem !important; }
           }
         `}</style>
+      )}
+      
+      {/* Install Prompt PWA */}
+      <InstallPrompt />
+      
+      {/* Tutorial Popup */}
+      {showTutorial && (
+        <TutorialPopup 
+          isDesktopMode={isDesktopMode}
+          onClose={() => setShowTutorial(false)} 
+        />
       )}
     </div>
   );
