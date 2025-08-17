@@ -6,5 +6,19 @@ export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
     exclude: ['lucide-react'],
+    include: ['buffer'],
+  },
+  define: {
+    global: 'globalThis',
+  },
+  resolve: {
+    alias: {
+      buffer: 'buffer',
+    },
+  },
+  esbuild: {
+    define: {
+      global: 'globalThis',
+    },
   },
 });

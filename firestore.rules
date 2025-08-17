@@ -1,0 +1,50 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Signatures : lecture/écriture pour tous (temporaire - à sécuriser plus tard)
+    match /signatures/{document} {
+      allow read, write: if true;
+    }
+    
+    // Codes de vérification : lecture/écriture pour tous
+    match /verificationCodes/{document} {
+      allow read, write: if true;
+    }
+    
+    // Documents : lecture/écriture pour tous (TEMPORAIRE - mode développement)
+    match /documents/{document} {
+      allow read, write: if true;
+    }
+    
+    // Accès documents : lecture/écriture pour tous (TEMPORAIRE - mode développement)
+    match /documentAccess/{document} {
+      allow read, write: if true;
+    }
+    
+    // Configurations de signatures : lecture/écriture pour tous
+    match /signatureConfigs/{document} {
+      allow read, write: if true;
+    }
+    
+    // Notifications : lecture/écriture pour tous (TEMPORAIRE - mode développement)
+    match /notifications/{document} {
+      allow read, write: if true;
+    }
+    
+    // Configuration projet : lecture/écriture pour tous (TEMPORAIRE - mode développement)
+    match /projectConfig/{document} {
+      allow read, write: if true;
+    }
+    
+    // Logs emails : lecture/écriture pour les Functions seulement
+    match /emailLogs/{document} {
+      allow read, write: if false; // Seules les Functions peuvent accéder
+    }
+    
+    // Logs notifications push : lecture/écriture pour tous (TEMPORAIRE)
+    match /pushNotificationLogs/{document} {
+      allow read, write: if true;
+    }
+  }
+}

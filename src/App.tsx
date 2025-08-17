@@ -12,6 +12,8 @@ import InstallPrompt from './components/InstallPrompt';
 import TutorialPopup from './components/TutorialPopup';
 import Footer from './components/Footer';
 import { Monitor, Smartphone } from 'lucide-react';
+import { initializePWANotifications } from './services/pwaNotificationService';
+import { initializeDefaultProjectConfig } from './services/projectService';
 // Stagewise imports - Commented out for now due to plugin issues
 // import { StagewiseToolbar } from '@stagewise/toolbar-react';
 // import ReactPlugin from '@stagewise-plugins/react';
@@ -20,6 +22,38 @@ function App() {
   const [isDesktopMode, setIsDesktopMode] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [initialSection, setInitialSection] = useState<string | null>(null);
+  const [initialTab, setInitialTab] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Gérer les paramètres d'URL pour la navigation
+    const urlParams = new URLSearchParams(window.location.search);
+    const section = urlParams.get('section');
+    const tab = urlParams.get('tab');
+    
+    if (section) {
+      setInitialSection(section);
+      // Naviguer vers la section après un délai pour laisser la page se charger
+      setTimeout(() => {
+        const element = document.querySelector(`[data-section="${section}"]`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 1000);
+    }
+    
+    if (tab) {
+      setInitialTab(tab);
+    }
+    
+    // Nettoyer l'URL après navigation
+    if (section || tab) {
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('section');
+      newUrl.searchParams.delete('tab');
+      window.history.replaceState({}, '', newUrl.toString());
+    }
+  }, []);
 
   useEffect(() => {
     // Détecter si on est sur un device mobile ou une fenêtre étroite
@@ -47,6 +81,12 @@ function App() {
       // Afficher le tutoriel après un court délai pour laisser la page se charger
       setTimeout(() => setShowTutorial(true), 1000);
     }
+    
+    // Initialiser les notifications PWA
+    initializePWANotifications();
+
+    // Initialiser la configuration projet par défaut
+    initializeDefaultProjectConfig();
     
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
@@ -144,7 +184,7 @@ function App() {
           <Timeline />
         </div>
         <div data-section="documents">
-          <DocumentsSection />
+          <DocumentsSection initialTab={initialTab} />
         </div>
         <Footer />
       </div>

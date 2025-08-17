@@ -1,0 +1,19 @@
+{
+  "documentAccess": {
+    "devis-mission-complete": {
+      "clientEmail": "landy.client@email.com",
+      "progineersEmail": "progineer.moe@gmail.com",
+      "documentName": "Devis mission complète maîtrise d'œuvre"
+    },
+    "devis-mission-partielle": {
+      "clientEmail": "landy.client@email.com", 
+      "progineersEmail": "progineer.moe@gmail.com",
+      "documentName": "Devis mission partielle conception permis"
+    },
+    "contrat-moe": {
+      "clientEmail": "landy.client@email.com",
+      "progineersEmail": "progineer.moe@gmail.com", 
+      "documentName": "Contrat de maîtrise d'œuvre"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+rules_version = '2';
+
+// Craft rules based on data in your Firestore database
+// allow write: if firestore.get(
+//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Documents signés : TEMPORAIRE - mode développement
+    match /signed-documents/{allPaths=**} {
+      allow read: if true;
+      allow write: if true; // TEMPORAIRE : pour développement uniquement
+    }
+    
+    // Uploads temporaires : lecture/écriture pour tous (à nettoyer)
+    match /temp-uploads/{allPaths=**} {
+      allow read, write: if true;
+    }
+  }
+}

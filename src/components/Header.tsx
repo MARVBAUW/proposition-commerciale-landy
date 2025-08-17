@@ -69,7 +69,17 @@ const Header: React.FC<HeaderProps> = ({ isDesktopMode = false }) => {
               isDesktopMode 
                 ? 'text-2xl' 
                 : 'text-base sm:text-2xl'
-            }`} style={{ color: '#c1a16a' }}>PROPOSITION COMMERCIALE</div>
+            }`} style={{ color: '#c1a16a' }}>
+              PR
+              <span 
+                onClick={() => window.location.href = '/admin-progineer-2025'}
+                className="cursor-default hover:bg-gray-100 hover:bg-opacity-20 rounded-full px-1 transition-colors duration-200"
+                title=""
+              >
+                O
+              </span>
+              POSITION COMMERCIALE
+            </div>
             <a href="https://progineer.fr/prestations/construction-neuve" target="_blank" rel="noopener noreferrer">
               <div className={`text-gray-600 hover:text-gray-800 transition-colors ${
                 isDesktopMode 

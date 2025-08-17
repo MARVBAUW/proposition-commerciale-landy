@@ -10,17 +10,25 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "@react-pdf/renderer": "^4.3.0",
+    "buffer": "^6.0.3",
     "chart.js": "^4.5.0",
+    "firebase": "^12.1.0",
+    "firebase-admin": "^13.4.0",
     "lucide-react": "^0.344.0",
+    "pdf-lib": "^1.17.1",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.3.0",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.8.0",
+    "react-signature-canvas": "^1.1.0-alpha.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
     "@stagewise-plugins/react": "^0.6.2",
     "@stagewise/toolbar-react": "^0.6.2",
+    "@types/node": "^24.3.0",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
