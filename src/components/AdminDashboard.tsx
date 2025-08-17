@@ -29,6 +29,7 @@ import SignaturePositionPreview from './SignaturePositionPreview';
 import { subscribeToSignatureUpdates, resetDocument } from '../services/signatureService';
 import { loadNotifications, addNotification, updateNotification, deleteNotification, initializeDefaultNotifications, type NotificationData } from '../services/notificationsService';
 import { sendCompleteNotification } from '../services/emailNotificationService';
+import { loadDocuments } from '../services/documentsService';
 import ProjectManager from './ProjectManager';
 import { testFirebaseConnection } from '../utils/firebaseDiagnostic';
 import { getAllSections, getAllTabs, getSectionLabel, getTabLabel } from '../services/navigationService';
@@ -159,11 +160,28 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     try {
       setLoading(true);
       
+      // Charger la configuration du projet
+      let projectConfig = null;
+      try {
+        const projectDoc = await getDoc(doc(db, 'projectConfig', 'landy-construction'));
+        if (projectDoc.exists()) {
+          projectConfig = projectDoc.data();
+        }
+      } catch (error) {
+        console.warn('Pas de configuration projet trouvée');
+      }
+      
       // Charger les accès aux documents
       const accessSnapshot = await getDocs(collection(db, 'documentAccess'));
       const accessData: Record<string, DocumentAccess> = {};
       accessSnapshot.docs.forEach(doc => {
-        accessData[doc.id] = doc.data() as DocumentAccess;
+        const data = doc.data() as DocumentAccess;
+        // Si on a une config projet, utiliser ses emails par défaut
+        if (projectConfig) {
+          data.clientEmail = data.clientEmail || projectConfig.clientEmail;
+          data.progineersEmail = data.progineersEmail || projectConfig.progineersEmail;
+        }
+        accessData[doc.id] = data;
       });
       setDocumentAccess(accessData);
       
@@ -193,8 +211,21 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
       setSiteContent(contentData);
       console.log('📝 Contenu du site chargé:', contentData);
       
-      // Créer les documents avec les vraies données
-      const realDocuments: Document[] = [
+      // Charger les documents depuis le service
+      const allDocuments = await loadDocuments();
+      
+      // Enrichir avec les données de signature et email  
+      const realDocuments: Document[] = allDocuments.map(doc => ({
+        ...doc,
+        clientEmail: accessData[doc.id]?.clientEmail || '',
+        progineersEmail: accessData[doc.id]?.progineersEmail || 'progineer.moe@gmail.com',
+        clientSigned: signaturesData.some(s => s.documentId === doc.id && s.signerType === 'client'),
+        progineersigned: signaturesData.some(s => s.documentId === doc.id && s.signerType === 'progineer')
+      } as Document));
+      
+      // Documents fallback si aucun document chargé
+      if (realDocuments.length === 0) {
+        const fallbackDocuments: Document[] = [
         {
           id: 'devis-mission-complete',
           name: 'Devis mission complète maîtrise d\'œuvre',
@@ -246,8 +277,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
           createdAt: new Date('2025-08-15'),
           updatedAt: new Date('2025-08-15')
         }
-      ];
-      setDocuments(realDocuments);
+        ];
+        setDocuments(fallbackDocuments);
+      } else {
+        setDocuments(realDocuments);
+      }
       
       // Charger les notifications
       console.log('🔔 AdminDashboard: Début chargement notifications...');
@@ -330,6 +364,42 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     }
   };
 
+  const handleSyncEmailsFromProject = async () => {
+    try {
+      // Charger la configuration du projet
+      const projectDoc = await getDoc(doc(db, 'projectConfig', 'landy-construction'));
+      if (!projectDoc.exists()) {
+        alert('Aucune configuration projet trouvée. Configurez d\'abord le projet.');
+        return;
+      }
+      
+      const projectConfig = projectDoc.data();
+      const { clientEmail, progineersEmail } = projectConfig;
+      
+      if (!clientEmail || !progineersEmail) {
+        alert('Emails manquants dans la configuration projet.');
+        return;
+      }
+      
+      // Mettre à jour tous les documents signables
+      const signableDocuments = ['devis-mission-complete', 'devis-mission-partielle', 'contrat-moe'];
+      const updatePromises = signableDocuments.map(docId => 
+        setDoc(doc(db, 'documentAccess', docId), {
+          clientEmail,
+          progineersEmail,
+          documentName: documentAccess[docId]?.documentName || `Document ${docId}`
+        }, { merge: true })
+      );
+      
+      await Promise.all(updatePromises);
+      await loadDataFromFirebase();
+      alert('✅ Emails synchronisés depuis la configuration projet !');
+    } catch (error) {
+      console.error('Erreur synchronisation emails:', error);
+      alert('❌ Erreur lors de la synchronisation');
+    }
+  };
+
   const handleAddNewSection = () => {
     setShowAddModal(true);
   };
@@ -394,12 +464,42 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   }
 
   const tabs = [
-    { id: 'documents' as const, label: 'Documents', icon: FileText, count: documents.length },
-    { id: 'signatures' as const, label: 'Signatures', icon: Users, count: documents.filter(d => d.isSignable).length },
-    { id: 'emails' as const, label: 'Emails', icon: Mail, count: signatures.length },
-    { id: 'content' as const, label: 'Contenu', icon: Layout, count: null },
-    { id: 'notifications' as const, label: 'Notifications', icon: Bell, count: notifications.length },
-    { id: 'stats' as const, label: 'Statistiques', icon: BarChart3, count: null }
+    { 
+      id: 'documents' as const, 
+      label: 'Documents', 
+      icon: FileText, 
+      count: documents.length 
+    },
+    { 
+      id: 'signatures' as const, 
+      label: 'Signatures', 
+      icon: Users, 
+      count: documents.filter(d => d.isSignable).length 
+    },
+    { 
+      id: 'emails' as const, 
+      label: 'Emails', 
+      icon: Mail, 
+      count: Object.keys(documentAccess).length 
+    },
+    { 
+      id: 'content' as const, 
+      label: 'Contenu', 
+      icon: Layout, 
+      count: null 
+    },
+    { 
+      id: 'notifications' as const, 
+      label: 'Notifications', 
+      icon: Bell, 
+      count: notifications.length 
+    },
+    { 
+      id: 'stats' as const, 
+      label: 'Statistiques', 
+      icon: BarChart3, 
+      count: null 
+    }
   ];
 
   return (
@@ -590,7 +690,16 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
 
         {activeTab === 'emails' && (
           <div>
-            <h2 className="text-lg font-medium text-gray-900 mb-6">Historique des emails</h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-lg font-medium text-gray-900">Gestion des emails</h2>
+              <button
+                onClick={handleSyncEmailsFromProject}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#c1a16a] hover:bg-[#787346] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#c1a16a]"
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Synchroniser depuis Projet
+              </button>
+            </div>
             
             {/* Statistiques emails */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
